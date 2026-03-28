@@ -1,0 +1,2876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpaceMan Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #0a0a0a;
+      --bg2:      #111111;
+      --bg3:      #1a1a1a;
+      --bg4:      #222222;
+      --border:   #2a2a2a;
+      --border2:  #333333;
+      --text:     #f0f0f0;
+      --text2:    #a0a0a0;
+      --text3:    #666666;
+      --white:    #ffffff;
+      --accent:   #e0e0e0;
+      --green:    #4ade80;
+      --red:      #f87171;
+      --gold:     #d4a853;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── Subtle texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .page { position: relative; z-index: 1; }
+
+    /* ══ NAVBAR ══ */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 60px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; color: var(--white);
+      letter-spacing: -0.3px;
+    }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-link {
+      background: none; border: none; cursor: pointer;
+      color: var(--text2); font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px;
+      transition: all .18s;
+    }
+    .nav-link:hover, .nav-link.active { background: var(--bg3); color: var(--text); }
+    .nav-badge {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+      color: var(--gold); border: 1px solid rgba(212,168,83,0.4);
+      padding: 4px 10px; border-radius: 6px;
+      background: rgba(212,168,83,0.06);
+    }
+
+    /* ══ SECTIONS (tab panels) ══ */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ══ HERO ══ */
+    .hero {
+      text-align: center;
+      padding: 52px 24px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .avatar-ring {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 96px; height: 96px; border-radius: 50%;
+      border: 2px solid var(--border2);
+      background: var(--bg3);
+      margin-bottom: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 0 6px rgba(255,255,255,0.03);
+    }
+    .avatar-ring img { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; }
+    .avatar-ring .av-placeholder { font-size: 40px; }
+
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; color: var(--white);
+      margin-bottom: 4px; letter-spacing: -0.5px;
+    }
+    .hero-handle { color: var(--text3); font-size: 13px; margin-bottom: 10px; }
+    .hero-bio { color: var(--text2); font-size: 14px; max-width: 300px; margin: 0 auto 22px; line-height: 1.65; }
+
+    .hero-stats { display: flex; justify-content: center; gap: 36px; margin-bottom: 20px; }
+    .h-stat-num { font-size: 22px; font-weight: 700; color: var(--white); }
+    .h-stat-lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+    .trust-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .trust-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text2);
+      background: var(--bg3); border: 1px solid var(--border2);
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-g { background: var(--green); }
+    .dot-w { background: var(--text2); }
+    .dot-gold { background: var(--gold); }
+
+    /* ══ SECTION LAYOUT ══ */
+    .section {
+      max-width: 520px; margin: 0 auto; padding: 36px 18px;
+    }
+    .sec-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .sec-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 19px; color: var(--white); letter-spacing: -0.3px;
+    }
+    .sec-count {
+      font-size: 12px; color: var(--text3);
+      background: var(--bg3); border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* ══ PRODUCT CARD ══ */
+    .prod-card {
+      display: flex; gap: 16px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px;
+      margin-bottom: 14px;
+      transition: border-color .2s, box-shadow .2s;
+      position: relative; overflow: hidden;
+    }
+    .prod-card:hover { border-color: var(--border2); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+    .prod-card.out-of-stock { opacity: 0.55; }
+
+    .popular-ribbon {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+      color: var(--gold); background: rgba(212,168,83,0.1);
+      border: 1px solid rgba(212,168,83,0.25);
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .prod-img {
+      width: 88px; height: 88px; flex-shrink: 0;
+      border-radius: 10px; overflow: hidden;
+      background: var(--bg3); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .prod-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .prod-info { flex: 1; min-width: 0; }
+    .prod-name { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+    .prod-desc { font-size: 12px; color: var(--text3); line-height: 1.55; margin-bottom: 8px; }
+    .prod-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+    .ptag {
+      font-size: 10px; color: var(--text3);
+      background: var(--bg3); border: 1px solid var(--border);
+      padding: 2px 8px; border-radius: 5px;
+    }
+    .prod-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .prod-price { font-size: 18px; font-weight: 700; color: var(--white); }
+    .prod-price small { font-size: 11px; font-weight: 400; color: var(--text3); }
+    .stock-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+    .s-in  { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+    .s-out { background: rgba(248,113,113,0.1); color: var(--red);   border: 1px solid rgba(248,113,113,0.2); }
+
+    .btn-buy {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all .18s;
+      background: var(--white); color: var(--bg);
+    }
+    .btn-buy:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,255,255,0.1); }
+    .btn-buy:active { transform: translateY(0); }
+    .btn-buy.disabled {
+      background: var(--bg3); color: var(--text3);
+      border: 1px solid var(--border); cursor: not-allowed;
+    }
+    .btn-buy.disabled:hover { transform: none; box-shadow: none; }
+
+    /* ══ INFO GRID ══ */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 28px 0; }
+    .info-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; text-align: center;
+    }
+    .info-icon { font-size: 22px; margin-bottom: 6px; }
+    .info-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+    .info-val { font-size: 14px; font-weight: 600; color: var(--white); }
+
+    /* ══ STEPS ══ */
+    .step-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 15px; margin-bottom: 10px;
+    }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg4); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--text);
+    }
+    .step-body strong { display: block; font-size: 13px; color: var(--white); margin-bottom: 2px; }
+    .step-body span { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+    /* ══ REVIEWS ══ */
+    .review-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 15px; margin-bottom: 10px;
+    }
+    .rv-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .rv-avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg4); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .rv-name { font-size: 13px; font-weight: 600; color: var(--white); }
+    .rv-meta { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .rv-stars { color: var(--gold); font-size: 12px; }
+    .rv-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+    /* ══ BANTUAN ══ */
+    .faq-item {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden; margin-bottom: 8px;
+    }
+    .faq-q {
+      width: 100%; background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500; color: var(--white);
+      text-align: left; transition: background .15s;
+    }
+    .faq-q:hover { background: var(--bg3); }
+    .faq-q .arrow { font-size: 12px; color: var(--text3); transition: transform .2s; }
+    .faq-q.open .arrow { transform: rotate(180deg); }
+    .faq-a {
+      display: none; padding: 0 18px 14px;
+      font-size: 13px; color: var(--text2); line-height: 1.6;
+      border-top: 1px solid var(--border);
+    }
+    .faq-a.open { display: block; }
+    .contact-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+      display: flex; align-items: center; gap: 14px; margin-top: 16px;
+    }
+    .contact-icon { font-size: 28px; }
+    .contact-lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+    .contact-val { font-size: 14px; font-weight: 600; color: var(--white); }
+
+    /* ══ LAPORAN MODAL ══ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 18px; width: 100%; max-width: 400px;
+      padding: 28px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      animation: popIn .22s ease;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform: scale(.94) translateY(10px); }
+      to   { opacity:1; transform: scale(1)  translateY(0); }
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); width: 30px; height: 30px; border-radius: 8px;
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    }
+    .modal-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; color: var(--white); margin-bottom: 6px;
+    }
+    .modal-sub { font-size: 13px; color: var(--text3); margin-bottom: 22px; line-height: 1.5; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.6px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+      color: var(--text); padding: 11px 14px; border-radius: 9px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      transition: border-color .18s; outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #555; }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+    .form-select option { background: var(--bg3); }
+    .form-note { font-size: 11px; color: var(--text3); margin-top: 4px; }
+    .field-err { font-size: 11px; color: var(--red); margin-top: 3px; display: none; }
+
+    .btn-submit {
+      width: 100%; padding: 13px; border-radius: 9px; border: none;
+      background: var(--white); color: var(--bg);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: all .18s; margin-top: 4px;
+    }
+    .btn-submit:hover { background: var(--accent); }
+
+    /* ══ TOAST ══ */
+    .toast {
+      display: none; position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg3); border: 1px solid var(--border2);
+      color: var(--text); padding: 12px 24px; border-radius: 50px;
+      font-size: 13px; font-weight: 500; z-index: 9999;
+      white-space: nowrap; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      animation: fadeUp .25s ease;
+    }
+    @keyframes fadeUp { from { opacity:0; transform: translate(-50%,10px); } to { opacity:1; transform: translate(-50%,0); } }
+
+    /* ══ LAPORAN FAB ══ */
+    .lapor-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 300;
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg2); border: 1px solid var(--border2);
+      color: var(--red); padding: 11px 18px; border-radius: 50px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600; transition: all .18s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .lapor-fab:hover { background: var(--bg3); border-color: #444; }
+
+    /* ══ FOOTER ══ */
+    .footer {
+      text-align: center; padding: 30px 20px;
+      font-size: 12px; color: var(--text3);
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--text2); text-decoration: none; }
+    .footer a:hover { color: var(--text); }
+
+    /* ════════════════════════════════════
+       HALAMAN QRIS
+    ════════════════════════════════════ */
+    #halamanQRIS {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 40px 18px 60px;
+    }
+    .pay-wrap { width: 100%; max-width: 420px; }
+    .pay-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text2); font-family: 'DM Sans', sans-serif;
+      font-size: 14px; margin-bottom: 28px; padding: 0; transition: color .18s;
+    }
+    .pay-back:hover { color: var(--text); }
+    .pay-head { text-align: center; margin-bottom: 24px; }
+    .pay-head h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--white); margin-bottom: 6px;
+    }
+    .pay-head p { font-size: 14px; color: var(--text3); }
+
+    .pay-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 18px; padding: 26px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    .order-sum {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 22px;
+    }
+    .o-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .o-row + .o-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+    .o-label { color: var(--text3); }
+    .o-val { color: var(--text); font-weight: 500; }
+    .o-total .o-label { color: var(--text); font-weight: 600; font-size: 14px; }
+    .o-total .o-val { color: var(--white); font-weight: 700; font-size: 18px; }
+
+    /* Loading */
+    .load-wrap { text-align: center; padding: 36px 0; }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 3px solid var(--bg4); border-top: 3px solid var(--text);
+      animation: spin .75s linear infinite; margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .load-text { font-size: 14px; color: var(--text3); }
+
+    /* QRIS image */
+    .qris-section { text-align: center; }
+    .qris-frame {
+      display: inline-block; background: #fff;
+      padding: 10px; border-radius: 14px; margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .qris-frame img { width: 190px; height: 190px; object-fit: contain; display: block; border-radius: 6px; }
+
+    /* Timer */
+    .timer-wrap { margin-bottom: 20px; }
+    .timer-bar-track { width: 100%; height: 3px; background: var(--bg4); border-radius: 4px; margin-bottom: 7px; }
+    .timer-bar-fill { height: 100%; background: var(--text2); border-radius: 4px; transition: width 1s linear, background .5s; }
+    .timer-bar-fill.urgent { background: var(--red); }
+    .timer-label { font-size: 12px; color: var(--text3); text-align: center; }
+    .timer-label .t-num { color: var(--text); font-weight: 600; }
+    .timer-label.urgent .t-num { color: var(--red); }
+
+    /* Pay steps */
+    .pay-guide {
+      background: var(--bg3); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    }
+    .pg-item { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--text3); }
+    .pg-item + .pg-item { margin-top: 7px; }
+    .pg-num {
+      width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg4); border: 1px solid var(--border2);
+      font-size: 10px; font-weight: 700; color: var(--text2);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Notif boxes */
+    .notif-box {
+      display: none; padding: 12px 14px; border-radius: 10px;
+      font-size: 13px; margin-bottom: 14px; line-height: 1.5;
+    }
+    .notif-err { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #fca5a5; }
+    .notif-ok  { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); color: #86efac; }
+
+    /* Buttons */
+    .pay-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all .18s; display: flex;
+      align-items: center; justify-content: center; gap: 7px; margin-bottom: 10px;
+    }
+    .pay-btn-primary { background: var(--white); color: var(--bg); }
+    .pay-btn-primary:hover { background: var(--accent); }
+    .pay-btn-secondary {
+      background: var(--bg3); color: var(--text2);
+      border: 1px solid var(--border2);
+    }
+    .pay-btn-secondary:hover { color: var(--text); border-color: #444; }
+    .pay-btn-ghost {
+      background: transparent; color: var(--text3);
+      border: 1px solid var(--border);
+    }
+    .pay-btn-ghost:hover { color: var(--text2); }
+    .pay-support { font-size: 12px; color: var(--text3); text-align: center; margin-top: 6px; }
+    .pay-support a { color: var(--text2); text-decoration: none; }
+
+    /* ── Fade-in ── */
+    @keyframes fadeIn { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    .fi { animation: fadeIn .45s ease both; }
+    .fi-1 { animation-delay:.08s; } .fi-2 { animation-delay:.16s; }
+    .fi-3 { animation-delay:.24s; } .fi-4 { animation-delay:.32s; }
+
+    @media(max-width:480px) {
+      nav { padding: 0 16px; }
+      .nav-badge { display: none; }
+      .hero { padding: 40px 16px 32px; }
+    }
+
+    /* ══ NAV CEK BUTTON ══ */
+    .nav-link-cek {
+      color: var(--gold) !important;
+      border: 1px solid rgba(212,168,83,0.25);
+      background: rgba(212,168,83,0.05) !important;
+    }
+    .nav-link-cek:hover { background: rgba(212,168,83,0.12) !important; border-color: rgba(212,168,83,0.4); }
+
+    /* ══ CEK LAPORAN MODAL ══ */
+    .cek-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.78); backdrop-filter: blur(5px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .cek-modal-overlay.open { display: flex; }
+    .cek-modal-box {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 18px; width: 100%; max-width: 430px;
+      padding: 28px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.65);
+      animation: popIn .22s ease;
+    }
+    .cek-modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); width: 30px; height: 30px; border-radius: 8px;
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    }
+    .cek-modal-title {
+      font-family: "DM Serif Display", serif;
+      font-size: 21px; color: var(--white); margin-bottom: 5px;
+    }
+    .cek-modal-sub { font-size: 13px; color: var(--text3); margin-bottom: 22px; line-height: 1.5; }
+
+    /* search input row */
+    .cek-input-row { display: flex; gap: 8px; margin-bottom: 6px; }
+    .cek-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+      color: var(--text); padding: 11px 14px; border-radius: 9px;
+      font-family: "DM Sans", sans-serif; font-size: 14px; outline: none;
+      transition: border-color .18s;
+    }
+    .cek-input:focus { border-color: #555; }
+    .cek-input::placeholder { color: var(--text3); }
+    .cek-btn {
+      padding: 11px 18px; background: var(--white); color: var(--bg);
+      border: none; border-radius: 9px; font-family: "DM Sans", sans-serif;
+      font-size: 14px; font-weight: 700; cursor: pointer; transition: all .18s;
+      white-space: nowrap;
+    }
+    .cek-btn:hover { background: #e8e8e8; }
+    .cek-btn:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; }
+    .cek-hint { font-size: 11px; color: var(--text3); margin-bottom: 18px; }
+
+    /* result area */
+    .cek-result { margin-top: 4px; }
+
+    /* loading spinner inline */
+    .cek-loading {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 0; justify-content: center;
+    }
+    .cek-spinner {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--bg4); border-top: 2px solid var(--text2);
+      animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    .cek-loading-text { font-size: 13px; color: var(--text3); }
+
+    /* no result */
+    .cek-empty {
+      text-align: center; padding: 24px 0;
+    }
+    .cek-empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .cek-empty-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .cek-empty-sub { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+    /* laporan result cards */
+    .cek-count-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .cek-count-lbl { font-size: 12px; color: var(--text3); }
+    .cek-count-num { font-size: 12px; font-weight: 600; color: var(--text2); }
+    .cek-refresh-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--bg4); border: 1px solid var(--border2);
+      color: var(--text2); padding: 4px 10px; border-radius: 7px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 500; transition: all .18s;
+    }
+    .cek-refresh-btn:hover { background: var(--bg3); color: var(--text); border-color: #444; }
+    .cek-refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .cek-refresh-btn .r-icon { display: inline-block; }
+    @keyframes refreshSpin { to { transform: rotate(360deg); } }
+    .cek-refresh-btn.spinning .r-icon { animation: refreshSpin .55s linear; }
+
+    .cek-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 15px 16px; margin-bottom: 10px;
+      transition: border-color .18s;
+    }
+    .cek-card:hover { border-color: var(--border2); }
+    .cek-card-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 10px;
+    }
+    .cek-card-alasan { font-size: 14px; font-weight: 600; color: var(--white); line-height: 1.3; }
+    .cek-card-waktu  { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    .cek-status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; padding: 4px 12px;
+      border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .cek-s-baru {
+      background: rgba(74,222,128,0.1); color: var(--green);
+      border: 1px solid rgba(74,222,128,0.25);
+    }
+    .cek-s-proses {
+      background: rgba(251,191,36,0.1); color: #fbbf24;
+      border: 1px solid rgba(251,191,36,0.25);
+    }
+    .cek-s-selesai {
+      background: rgba(255,255,255,0.06); color: var(--text2);
+      border: 1px solid var(--border2);
+    }
+
+    /* progress timeline */
+    .cek-timeline {
+      display: flex; align-items: center; gap: 0;
+      margin: 10px 0 6px;
+    }
+    .cek-tl-step {
+      display: flex; flex-direction: column; align-items: center; flex: 1;
+    }
+    .cek-tl-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; margin-bottom: 5px;
+      border: 2px solid var(--border2); color: var(--text3);
+      background: var(--bg4); transition: all .2s;
+    }
+    .cek-tl-dot.done {
+      background: var(--green); border-color: var(--green); color: var(--bg);
+    }
+    .cek-tl-dot.active {
+      background: #fbbf24; border-color: #fbbf24; color: var(--bg);
+      box-shadow: 0 0 10px rgba(251,191,36,0.4);
+    }
+    .cek-tl-label { font-size: 10px; color: var(--text3); text-align: center; }
+    .cek-tl-label.done   { color: var(--green); }
+    .cek-tl-label.active { color: #fbbf24; }
+    .cek-tl-line {
+      height: 2px; flex: 1; background: var(--border2); margin-bottom: 20px;
+      align-self: flex-start; margin-top: 10px;
+    }
+    .cek-tl-line.done { background: var(--green); }
+
+    .cek-card-detail {
+      font-size: 12px; color: var(--text3); line-height: 1.5;
+      border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+    }
+
+    /* scrollable results */
+    .cek-results-scroll {
+      max-height: 340px; overflow-y: auto; padding-right: 2px;
+    }
+    .cek-results-scroll::-webkit-scrollbar { width: 4px; }
+    .cek-results-scroll::-webkit-scrollbar-track { background: transparent; }
+    .cek-results-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    /* ══ PROMO TAB ══ */
+    .promo-banner {
+      position: relative; overflow: hidden;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 14px; padding: 22px 20px 20px;
+      margin-bottom: 14px;
+    }
+    .promo-banner-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(212,168,83,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .promo-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      color: var(--gold); background: rgba(212,168,83,0.12);
+      border: 1px solid rgba(212,168,83,0.25);
+      display: inline-block; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .promo-title { font-size: 17px; font-weight: 700; color: var(--white); margin-bottom: 4px; line-height: 1.3; }
+    .promo-desc  { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+    .promo-code-row { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+    .promo-code {
+      font-size: 18px; font-weight: 800; letter-spacing: 2px;
+      color: var(--gold); background: rgba(212,168,83,0.08);
+      border: 1px dashed rgba(212,168,83,0.35);
+      padding: 7px 16px; border-radius: 8px; font-family: monospace;
+    }
+    .promo-copy-btn {
+      background: var(--gold); color: var(--bg); border: none;
+      padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .18s;
+    }
+    .promo-copy-btn:hover { background: #e6b95e; }
+
+    /* countdown */
+    .promo-countdown-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .promo-countdown-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; }
+    .promo-countdown-boxes { display: flex; align-items: center; gap: 4px; }
+    .cd-box {
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 7px; padding: 6px 10px; text-align: center; min-width: 44px;
+    }
+    .cd-box span { display: block; font-size: 20px; font-weight: 700; color: var(--white); line-height: 1; }
+    .cd-box small { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+    .cd-sep { font-size: 18px; font-weight: 700; color: var(--text3); margin-bottom: 10px; }
+
+    /* promo cards grid */
+    .promo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .promo-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; display: flex; flex-direction: column;
+      gap: 6px; transition: border-color .18s;
+    }
+    .promo-card:hover { border-color: var(--border2); }
+    .promo-card-icon { font-size: 24px; }
+    .promo-card-title { font-size: 13px; font-weight: 700; color: var(--white); }
+    .promo-card-desc  { font-size: 11px; color: var(--text3); line-height: 1.5; flex: 1; }
+    .promo-card-btn {
+      margin-top: 6px; padding: 8px 0; background: var(--bg3);
+      border: 1px solid var(--border2); color: var(--text2);
+      border-radius: 7px; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all .18s;
+      width: 100%;
+    }
+    .promo-card-btn:hover { background: var(--bg4); color: var(--text); border-color: #444; }
+
+    /* news cards */
+    .news-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 11px; padding: 13px 15px; margin-bottom: 8px;
+      transition: border-color .18s;
+    }
+    .news-card:hover { border-color: var(--border2); }
+    .news-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border2); flex-shrink: 0;
+    }
+    .news-dot.new { background: var(--green); box-shadow: 0 0 6px rgba(74,222,128,0.5); }
+    .news-body { flex: 1; min-width: 0; }
+    .news-title { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .news-meta  { font-size: 11px; color: var(--text3); }
+    .news-badge {
+      font-size: 10px; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .new-badge  { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+    .info-badge { background: rgba(255,255,255,0.05); color: var(--text3); border: 1px solid var(--border2); }
+    .news-notif-btn {
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 7px;
+      background: var(--bg3); border: 1px solid var(--border2); color: var(--text2);
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .18s; white-space: nowrap; flex-shrink: 0;
+    }
+    .news-notif-btn:hover { color: var(--text); border-color: #444; }
+
+    /* sosmed */
+    .sosmed-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .sosmed-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 16px; border-radius: 9px; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: all .18s; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; border: 1px solid var(--border2);
+      flex: 1; justify-content: center;
+    }
+    .tg-btn { background: rgba(41,182,246,0.08); color: #29b6f6; border-color: rgba(41,182,246,0.2); }
+    .tg-btn:hover { background: rgba(41,182,246,0.15); }
+    .wa-btn { background: rgba(74,222,128,0.08); color: #4ade80; border-color: rgba(74,222,128,0.2); }
+    .wa-btn:hover { background: rgba(74,222,128,0.15); }
+    .ig-btn { background: rgba(212,168,83,0.08); color: var(--gold); border-color: rgba(212,168,83,0.2); }
+    .ig-btn:hover { background: rgba(212,168,83,0.15); }
+
+    /* ══ BUNDLING TAB ══ */
+    .bundling-card {
+      background: var(--bg2); border: 1px solid rgba(212,168,83,0.3);
+      border-radius: 16px; padding: 22px 20px; margin-bottom: 14px;
+      position: relative; overflow: hidden;
+    }
+    .bundling-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(212,168,83,0.05) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .bundling-top {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .bundling-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      color: var(--gold); background: rgba(212,168,83,0.12);
+      border: 1px solid rgba(212,168,83,0.3); padding: 4px 12px; border-radius: 20px;
+    }
+    .bundling-title { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+    .bundling-desc  { font-size: 13px; color: var(--text3); line-height: 1.6; margin-bottom: 18px; }
+
+    .bundling-includes {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
+    }
+    .bi-title { font-size: 10px; font-weight: 700; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .bi-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .bi-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .bi-icon { color: var(--green); font-weight: 700; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .bi-name { font-size: 13px; font-weight: 600; color: var(--white); }
+    .bi-sub  { font-size: 11px; color: var(--text3); margin-top: 1px; }
+    .bi-price { font-size: 12px; color: var(--text3); margin-left: auto; flex-shrink: 0; text-decoration: line-through; }
+
+    .bundling-price-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .bundling-original { font-size: 12px; color: var(--text3); text-decoration: line-through; margin-bottom: 2px; }
+    .bundling-price { font-size: 24px; font-weight: 800; color: var(--gold); }
+    .bundling-price small { font-size: 12px; font-weight: 400; color: var(--text3); }
+
+    .bundling-buy-btn {
+      width: 100%; padding: 13px; justify-content: center;
+    }
+
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .why-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 11px; padding: 14px; text-align: center;
+    }
+    .why-icon  { font-size: 22px; margin-bottom: 6px; }
+    .why-title { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+    .why-desc  { font-size: 11px; color: var(--text3); line-height: 1.4; }
+
+    /* ══ PRODUCT STATUS STYLES ══ */
+    .bundling-note {
+      display: block; margin-top: 5px;
+      font-size: 11px; color: var(--gold);
+      background: rgba(212,168,83,0.07);
+      border: 1px solid rgba(212,168,83,0.2);
+      border-radius: 6px; padding: 4px 8px;
+    }
+    .bundling-only-tag {
+      background: rgba(212,168,83,0.1) !important;
+      color: var(--gold) !important;
+      border-color: rgba(212,168,83,0.25) !important;
+    }
+    .bundling-redirect {
+      background: rgba(212,168,83,0.1);
+      color: var(--gold); border: 1px solid rgba(212,168,83,0.3);
+    }
+    .bundling-redirect:hover {
+      background: rgba(212,168,83,0.18); transform: none;
+      box-shadow: none;
+    }
+    .status-maintenance-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25);
+      border-radius: 8px; padding: 7px 12px; margin-top: 8px; margin-bottom: 2px;
+      font-size: 12px; color: #fbbf24;
+    }
+    .maintenance-banner-main {
+      background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 12px; padding: 13px 16px; margin-bottom: 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .mb-icon { font-size: 20px; flex-shrink: 0; }
+    .mb-title { font-size: 13px; font-weight: 700; color: #fbbf24; margin-bottom: 3px; }
+    .mb-sub   { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+    /* ══ QRIS ITEM ROWS ══ */
+    .o-item .o-label { font-size: 12px !important; }
+
+    /* ══ BUNDLING-ONLY NOTE in prod desc ══ */
+    .prod-card.bundling-only-card { border-color: rgba(212,168,83,0.2); }
+
+    /* ══ LEGAL MODAL ══ */
+    .legal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(5px);
+      align-items: flex-end; justify-content: center; padding: 0;
+    }
+    .legal-overlay.open { display: flex; }
+    .legal-sheet {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 620px;
+      max-height: 88vh; display: flex; flex-direction: column;
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
+      animation: slideUp .28s cubic-bezier(.22,.68,0,1.2);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(60px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .legal-sheet-handle {
+      width: 40px; height: 4px; border-radius: 4px;
+      background: var(--border2); margin: 12px auto 0; flex-shrink: 0;
+    }
+    .legal-sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px 14px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .legal-sheet-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 19px; color: var(--white);
+    }
+    .legal-sheet-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text2); cursor: pointer; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .legal-sheet-body {
+      overflow-y: auto; padding: 22px 24px 36px; flex: 1;
+    }
+    .legal-sheet-body::-webkit-scrollbar { width: 4px; }
+    .legal-sheet-body::-webkit-scrollbar-track { background: transparent; }
+    .legal-sheet-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+    .legal-updated {
+      font-size: 11px; color: var(--text3);
+      background: var(--bg3); border: 1px solid var(--border);
+      display: inline-block; padding: 3px 10px; border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .legal-intro {
+      font-size: 13px; color: var(--text2); line-height: 1.7;
+      margin-bottom: 22px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .legal-section { margin-bottom: 22px; }
+    .legal-section-title {
+      font-size: 14px; font-weight: 700; color: var(--white);
+      margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+    }
+    .legal-section-num {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--bg4); border: 1px solid var(--border2);
+      font-size: 11px; font-weight: 700; color: var(--text2);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .legal-section-body {
+      font-size: 13px; color: var(--text3); line-height: 1.75;
+      padding-left: 30px;
+    }
+    .legal-section-body ul {
+      margin: 6px 0 0 16px; list-style: disc;
+    }
+    .legal-section-body li { margin-bottom: 4px; }
+    .legal-footer-note {
+      font-size: 11px; color: var(--text3); text-align: center;
+      margin-top: 10px; padding-top: 16px; border-top: 1px solid var(--border);
+    }
+
+    /* ══ WELCOME TOS SCREEN ══ */
+    #tosScreen {
+      position: fixed; inset: 0; z-index: 2000;
+      background: var(--bg);
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    #tosScreen.hide-tos {
+      animation: tosFadeOut .4s ease forwards;
+      pointer-events: none;
+    }
+    @keyframes tosFadeOut {
+      to { opacity: 0; transform: scale(1.015); }
+    }
+    .tos-sheet {
+      width: 100%; max-width: 620px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -24px 80px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column;
+      max-height: 92vh;
+      animation: tosSlideUp .4s cubic-bezier(.22,.68,0,1.1);
+    }
+    @keyframes tosSlideUp {
+      from { transform: translateY(80px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .tos-handle {
+      width: 44px; height: 5px; border-radius: 4px;
+      background: var(--border2); margin: 14px auto 0; flex-shrink: 0;
+    }
+    .tos-header {
+      padding: 18px 24px 14px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tos-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 13px; color: var(--text3); letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .tos-header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 21px; color: var(--white);
+      margin-bottom: 4px;
+    }
+    .tos-header-sub {
+      font-size: 12px; color: var(--text3); line-height: 1.5;
+    }
+    .tos-body {
+      overflow-y: auto; flex: 1; padding: 20px 24px 4px;
+    }
+    .tos-body::-webkit-scrollbar { width: 4px; }
+    .tos-body::-webkit-scrollbar-track { background: transparent; }
+    .tos-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+    .tos-updated {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text3);
+      background: var(--bg3); border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 16px;
+    }
+    .tos-intro {
+      font-size: 13px; color: var(--text2); line-height: 1.7;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tos-sec { margin-bottom: 18px; }
+    .tos-sec-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 6px;
+    }
+    .tos-sec-num {
+      width: 22px; height: 22px; flex-shrink: 0;
+      background: var(--bg4); border: 1px solid var(--border2);
+      border-radius: 6px; font-size: 11px; font-weight: 700; color: var(--text2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tos-sec-body {
+      font-size: 12.5px; color: var(--text3); line-height: 1.75;
+      padding-left: 30px;
+    }
+    .tos-sec-body ul { margin: 5px 0 0 16px; list-style: disc; }
+    .tos-sec-body li { margin-bottom: 3px; }
+
+    /* Read progress nudge */
+    .tos-scroll-nudge {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; color: var(--text3);
+      padding: 8px; border-top: 1px solid var(--border);
+      transition: opacity .3s;
+    }
+    .tos-scroll-nudge.hidden { opacity: 0; pointer-events: none; }
+
+    /* Sticky footer */
+    .tos-footer {
+      padding: 16px 24px 28px; border-top: 1px solid var(--border);
+      flex-shrink: 0; background: var(--bg2);
+    }
+    .tos-checkbox-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 14px; cursor: pointer;
+    }
+    .tos-checkbox {
+      width: 18px; height: 18px; flex-shrink: 0;
+      border: 2px solid var(--border2); border-radius: 5px;
+      background: var(--bg3); margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .18s; cursor: pointer;
+    }
+    .tos-checkbox.checked {
+      background: var(--green); border-color: var(--green);
+    }
+    .tos-checkbox.checked::after {
+      content: '✓'; font-size: 11px; color: var(--bg); font-weight: 800;
+    }
+    .tos-checkbox-label {
+      font-size: 12.5px; color: var(--text2); line-height: 1.55; user-select: none;
+    }
+    .tos-checkbox-label a {
+      color: var(--gold); text-decoration: none;
+    }
+    .tos-agree-btn {
+      width: 100%; padding: 14px;
+      background: var(--white); color: var(--bg);
+      border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .2s;
+      opacity: 0.35; pointer-events: none;
+    }
+    .tos-agree-btn.enabled {
+      opacity: 1; pointer-events: all;
+    }
+    .tos-agree-btn.enabled:hover {
+      background: var(--accent); transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255,255,255,0.1);
+    }
+    #tosScreen {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ══ PANEL PREDICTOR CARD ══ */
+    .prod-card-panel { border-color: rgba(96,165,250,0.2); }
+    .prod-card-panel:hover { border-color: rgba(96,165,250,0.4); }
+    .ribbon-blue { background: linear-gradient(135deg,#2563eb,#60a5fa) !important; color: #fff !important; }
+
+    .prod-img-panel {
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg,#0f172a,#1e3a5f);
+      border-radius: 10px; padding: 16px; min-height: 110px;
+    }
+    .panel-preview-mock {
+      width: 130px; background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(96,165,250,0.3); border-radius: 10px;
+      overflow: hidden; box-shadow: 0 4px 20px rgba(96,165,250,0.15);
+    }
+    .ppm-bar {
+      background: rgba(96,165,250,0.15); padding: 5px 8px;
+      display: flex; gap: 4px; align-items: center;
+    }
+    .ppm-bar span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+    }
+    .ppm-bar span:first-child { background: #f87171; }
+    .ppm-content { padding: 10px; text-align: center; }
+    .ppm-label { font-size: 8px; letter-spacing: 1px; color: rgba(96,165,250,0.7); margin-bottom: 4px; }
+    .ppm-value {
+      font-size: 22px; font-weight: 800; color: #60a5fa;
+      font-family: monospace; line-height: 1;
+    }
+    .ppm-sub { font-size: 7px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+    .ptag-blue { background: rgba(96,165,250,0.1) !important; color: #60a5fa !important; border-color: rgba(96,165,250,0.25) !important; }
+
+    .spec-box {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; margin-top: 12px;
+    }
+    .spec-box-gold { border-color: rgba(212,168,83,0.2); background: rgba(212,168,83,0.03); }
+    .spec-title { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 9px; }
+    .spec-row {
+      display: flex; gap: 8px; font-size: 11.5px; padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .spec-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .spec-k { color: var(--text3); flex-shrink: 0; width: 88px; line-height: 1.5; }
+    .spec-v { color: var(--text2); line-height: 1.5; }
+
+    .btn-buy-blue {
+      background: linear-gradient(135deg,#1d4ed8,#3b82f6);
+      color: #fff; border: none;
+    }
+    .btn-buy-blue:hover { background: linear-gradient(135deg,#2563eb,#60a5fa); }
+
+    /* ══ SPESIAL RESELLER CARD ══ */
+    .prod-card-special {
+      border-color: rgba(212,168,83,0.35);
+      background: linear-gradient(160deg, rgba(212,168,83,0.04) 0%, var(--bg2) 50%);
+    }
+    .prod-card-special:hover { border-color: rgba(212,168,83,0.6); }
+    .ribbon-gold { background: linear-gradient(135deg,#92400e,#d4a853) !important; color: #fff !important; }
+
+    .prod-img-special {
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg,#1a1200,#2d1f00);
+      border-radius: 10px; min-height: 110px; position: relative; overflow: hidden;
+    }
+    .special-icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .special-icon { font-size: 52px; position: relative; z-index: 1; filter: drop-shadow(0 0 16px rgba(212,168,83,0.6)); }
+    .special-glow {
+      position: absolute; width: 80px; height: 80px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,168,83,0.25) 0%, transparent 70%);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    @keyframes glowPulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.3);opacity:1} }
+
+    .spesial-badge-inline {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+      background: rgba(212,168,83,0.15); color: var(--gold);
+      border: 1px solid rgba(212,168,83,0.3); vertical-align: middle; margin-left: 4px;
+    }
+    .ptag-gold { background: rgba(212,168,83,0.1) !important; color: var(--gold) !important; border-color: rgba(212,168,83,0.25) !important; }
+
+    .btn-buy-gold {
+      background: linear-gradient(135deg,#92400e,#d4a853);
+      color: #fff; border: none;
+    }
+    .btn-buy-gold:hover { background: linear-gradient(135deg,#a16207,#e5b95e); }
+
+    /* panel mock animation */
+    @keyframes ppmTick { 0%{opacity:1} 50%{opacity:.4} 100%{opacity:1} }
+
+    /* ══ BALASAN ADMIN (cek laporan) ══ */
+    .admin-reply-box {
+      margin-top: 10px;
+      background: rgba(212,168,83,0.06);
+      border: 1px solid rgba(212,168,83,0.25);
+      border-radius: 10px; padding: 11px 14px;
+    }
+    .admin-reply-header {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 7px;
+    }
+    .admin-reply-header::before {
+      content: ''; display: inline-block;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold); box-shadow: 0 0 6px rgba(212,168,83,0.6);
+    }
+    .admin-reply-text {
+      font-size: 13px; color: var(--text2); line-height: 1.65;
+    }
+    .admin-reply-time {
+      font-size: 10px; color: var(--text3); margin-top: 6px;
+    }
+    .no-reply-box {
+      display: flex; align-items: center; gap: 7px;
+      margin-top: 10px; padding: 9px 13px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 9px; font-size: 12px; color: var(--text3);
+    }
+
+    /* ══ BANTUAN ACTION BUTTONS ══ */
+    .bantuan-action-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-top: 4px;
+    }
+    .bantuan-btn {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 14px;
+      cursor: pointer; text-align: left; transition: all .18s;
+      font-family: 'DM Sans', sans-serif; width: 100%;
+    }
+    .bantuan-btn:hover { border-color: var(--border2); transform: translateY(-1px); }
+    .bantuan-btn-lapor:hover { border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.04); }
+    .bantuan-btn-cs:hover    { border-color: rgba(74,222,128,0.35);  background: rgba(74,222,128,0.04); }
+    .bantuan-btn-icon { font-size: 26px; flex-shrink: 0; }
+    .bantuan-btn-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+    .bantuan-btn-sub   { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 5px; }
+    .cs-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 5px rgba(74,222,128,0.7);
+      animation: csBlink 1.8s ease-in-out infinite;
+    }
+    @keyframes csBlink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+    /* ══ KODE PEMBAYARAN ══ */
+    .kode-bayar-wrap {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg3); border: 1px dashed var(--border2);
+      border-radius: 8px; padding: 7px 10px; margin: 8px 0;
+    }
+    .kode-bayar-label { font-size: 10px; color: var(--text3); white-space: nowrap; }
+    .kode-bayar-val   { font-size: 13px; font-weight: 700; color: var(--white); font-family: monospace; flex: 1; letter-spacing: 0.5px; }
+    .kode-bayar-copy  {
+      background: var(--bg4); border: 1px solid var(--border2);
+      color: var(--text2); padding: 4px 9px; border-radius: 6px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap;
+    }
+    .kode-bayar-copy:hover { background: var(--border2); color: var(--text); }
+    .kode-bayar-copy.copied { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.3); }
+
+    /* ══ TOMBOL SUDAH BAYAR ══ */
+    .btn-sudah-bayar {
+      width: 100%; padding: 10px; margin-top: 6px;
+      background: transparent; border: 1px solid var(--border2);
+      color: var(--text3); border-radius: 10px; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all .18s;
+    }
+    .btn-sudah-bayar:hover { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.06); }
+
+    /* ══ KERANJANG FAB ══ */
+    .cart-fab {
+      position: fixed; bottom: 80px; right: 20px; z-index: 150;
+      background: var(--gold); color: var(--bg);
+      border: none; border-radius: 50px; padding: 12px 18px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(212,168,83,0.4);
+      display: flex; align-items: center; gap: 8px;
+      transition: all .2s; opacity: 0; pointer-events: none;
+    }
+    .cart-fab.visible { opacity: 1; pointer-events: all; }
+    .cart-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(212,168,83,0.5); }
+    .cart-count {
+      background: var(--bg); color: var(--gold);
+      width: 20px; height: 20px; border-radius: 50%;
+      font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ══ MODAL KERANJANG ══ */
+    .cart-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: flex-end; justify-content: center;
+    }
+    .cart-overlay.open { display: flex; }
+    .cart-sheet {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 20px 20px 0 0; width: 100%; max-width: 620px;
+      max-height: 80vh; display: flex; flex-direction: column;
+      animation: slideUp .25s ease;
+    }
+    .cart-handle { width: 40px; height: 4px; border-radius: 4px; background: var(--border2); margin: 12px auto; flex-shrink: 0; }
+    .cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .cart-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--white); }
+    .cart-close { width: 28px; height: 28px; border-radius: 7px; background: var(--bg3); border: 1px solid var(--border); color: var(--text2); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .cart-body { overflow-y: auto; flex: 1; padding: 16px 20px; }
+    .cart-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 11px; padding: 12px 14px; margin-bottom: 8px;
+    }
+    .cart-item-icon { font-size: 22px; flex-shrink: 0; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name  { font-size: 13px; font-weight: 600; color: var(--white); }
+    .cart-item-price { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .cart-item-kode  { font-size: 10px; color: var(--text3); font-family: monospace; margin-top: 3px; }
+    .cart-item-del { background: transparent; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 4px; transition: color .15s; }
+    .cart-item-del:hover { color: var(--red); }
+    .cart-empty { text-align: center; padding: 32px; color: var(--text3); font-size: 13px; }
+    .cart-empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .cart-footer {
+      padding: 14px 20px 24px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .cart-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .cart-total-lbl { font-size: 13px; color: var(--text3); }
+    .cart-total-val { font-size: 18px; font-weight: 800; color: var(--white); }
+    .cart-order-btn {
+      width: 100%; padding: 13px;
+      background: var(--white); color: var(--bg);
+      border: none; border-radius: 11px;
+      font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .18s;
+    }
+    .cart-order-btn:hover { background: var(--accent); }
+    .cart-order-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ══ MODAL LAPORAN — TAB SYSTEM ══ */
+    .laporan-tabs {
+      display: flex; gap: 4px; margin-bottom: 18px;
+      background: var(--bg3); border-radius: 10px; padding: 4px;
+    }
+    .laporan-tab {
+      flex: 1; padding: 8px; border-radius: 7px; border: none;
+      background: transparent; color: var(--text3);
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .18s; text-align: center;
+    }
+    .laporan-tab.active { background: var(--bg2); color: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .laporan-tab-panel { display: none; }
+    .laporan-tab-panel.active { display: block; }
+
+    /* pembayaran form highlight */
+    .kode-display-box {
+      background: rgba(212,168,83,0.06); border: 1px solid rgba(212,168,83,0.25);
+      border-radius: 9px; padding: 11px 14px; margin-bottom: 14px;
+    }
+    .kode-display-lbl { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+    .kode-display-val { font-size: 16px; font-weight: 800; color: var(--gold); font-family: monospace; letter-spacing: 1px; }
+
+    /* ══ QRIS KODE PEMBAYARAN ══ */
+    .qris-kode-box {
+      background: rgba(212,168,83,0.06);
+      border: 1px solid rgba(212,168,83,0.3);
+      border-radius: 12px; padding: 14px 16px;
+      margin: 14px 0;
+    }
+    .qris-kode-top {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 10px; gap: 8px; flex-wrap: wrap;
+    }
+    .qris-kode-lbl  { font-size: 12px; font-weight: 700; color: var(--gold); }
+    .qris-kode-hint { font-size: 10px; color: var(--text3); }
+    .qris-kode-row  { display: flex; align-items: center; gap: 10px; }
+    .qris-kode-val  {
+      flex: 1; font-size: 20px; font-weight: 800; font-family: monospace;
+      color: var(--gold); letter-spacing: 1.5px;
+    }
+    .qris-kode-copy {
+      background: rgba(212,168,83,0.15); border: 1px solid rgba(212,168,83,0.35);
+      color: var(--gold); padding: 7px 14px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .qris-kode-copy:hover { background: rgba(212,168,83,0.25); }
+    .qris-kode-copy.copied { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.3); }
+
+    .pay-btn-sudah {
+      background: rgba(74,222,128,0.1) !important;
+      color: var(--green) !important;
+      border: 1px solid rgba(74,222,128,0.3) !important;
+    }
+    .pay-btn-sudah:hover { background: rgba(74,222,128,0.18) !important; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     WELCOME TOS SCREEN
+════════════════════════════════════ -->
+<div id="tosScreen">
+  <div class="tos-sheet">
+    <div class="tos-handle"></div>
+    <div class="tos-header">
+      <div class="tos-logo">SpaceMan Store</div>
+      <div class="tos-header-title">Syarat &amp; Ketentuan Layanan</div>
+      <div class="tos-header-sub">Harap baca dan setujui sebelum melanjutkan menggunakan layanan kami.</div>
+    </div>
+
+    <div class="tos-body" id="tosBody" onscroll="checkTosScroll()">
+      <div class="tos-updated">🕐 Terakhir diperbarui: 12 Maret 2026</div>
+      <p class="tos-intro">Dengan mengakses dan menggunakan website ini, pengguna dianggap telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan berikut.</p>
+
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">1</span>Layanan</div>
+        <div class="tos-sec-body">Website ini menyediakan layanan penjualan bot untuk permainan Spaceman. Layanan yang tersedia di website dapat berubah atau diperbarui sewaktu-waktu sesuai dengan kebijakan pengelola website.</div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">2</span>Tanggung Jawab Pengguna</div>
+        <div class="tos-sec-body">Pengguna bertanggung jawab penuh atas penggunaan layanan yang tersedia di website ini. Segala aktivitas yang dilakukan menggunakan layanan website menjadi tanggung jawab pengguna masing-masing.</div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">3</span>Pembayaran</div>
+        <div class="tos-sec-body">Setiap transaksi yang dilakukan melalui website harus mengikuti metode pembayaran yang tersedia pada sistem. Setelah pembayaran berhasil dilakukan dan layanan diberikan, transaksi dianggap selesai.</div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">4</span>Larangan Penggunaan</div>
+        <div class="tos-sec-body">Pengguna dilarang menggunakan website ini untuk:
+          <ul>
+            <li>Aktivitas yang melanggar hukum</li>
+            <li>Penyalahgunaan layanan</li>
+            <li>Mengganggu sistem atau keamanan website</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">5</span>Batasan Tanggung Jawab</div>
+        <div class="tos-sec-body">Pengelola website tidak bertanggung jawab atas kerugian yang mungkin terjadi akibat penggunaan layanan yang tersedia di website ini. Pengguna memahami bahwa penggunaan layanan sepenuhnya menjadi risiko masing-masing.</div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">6</span>Perubahan Layanan</div>
+        <div class="tos-sec-body">Kami berhak mengubah, menambahkan, atau menghentikan layanan yang tersedia di website kapan saja tanpa pemberitahuan sebelumnya.</div>
+      </div>
+      <div class="tos-sec">
+        <div class="tos-sec-title"><span class="tos-sec-num">7</span>Persetujuan</div>
+        <div class="tos-sec-body">Dengan menggunakan website ini, pengguna dianggap telah menyetujui seluruh syarat dan ketentuan yang berlaku.</div>
+      </div>
+    </div>
+
+    <div class="tos-scroll-nudge" id="tosNudge">
+      ↓ Gulir ke bawah untuk membaca selengkapnya
+    </div>
+
+    <div class="tos-footer">
+      <div class="tos-checkbox-row" onclick="toggleTosCheck()">
+        <div class="tos-checkbox" id="tosCheck"></div>
+        <div class="tos-checkbox-label">
+          Saya telah membaca dan menyetujui <a href="#" onclick="openLegal('syarat');return false;">Syarat &amp; Ketentuan</a> serta <a href="#" onclick="openLegal('privasi');return false;">Kebijakan Privasi</a> SpaceMan Store.
+        </div>
+      </div>
+      <button class="tos-agree-btn" id="tosAgreeBtn" onclick="acceptTos()">
+        ✓ Saya Setuju &amp; Lanjutkan
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     HALAMAN TOKO
+════════════════════════════════════ -->
+<div id="halamanToko" class="page">
+
+  <nav>
+    <div class="nav-logo">Space<span>Store</span></div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="switchTab('produk',this)">Produk</button>
+      <button class="nav-link" onclick="switchTab('ulasan',this)">Promo</button>
+      <button class="nav-link" onclick="switchTab('bantuan',this)">Bantuan</button>
+      <button class="nav-link nav-link-cek" onclick="openCekModal()">&#128269; Cek Laporan</button>
+    </div>
+    <div class="nav-badge">RESMI</div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero fi">
+    <div class="avatar-ring">
+      <img src="botspaceman.webp" alt="SpaceStore" onerror="this.outerHTML='<div class=av-placeholder>🚀</div>'"/>
+    </div>
+    <div class="hero-title">SpaceMan Store</div>
+    <div class="hero-handle">@botspacemanpredictorr</div>
+    <div class="hero-bio">Toko digital terpercaya untuk produk Spaceman Predictor. Garansi resmi & pengiriman instan. 🤗</div>
+    <div class="hero-stats">
+      <div><div class="h-stat-num">500+</div><div class="h-stat-lbl">Pembeli</div></div>
+      <div><div class="h-stat-num">4.9★</div><div class="h-stat-lbl">Rating</div></div>
+      <div><div class="h-stat-num">2 Thn</div><div class="h-stat-lbl">Berdiri</div></div>
+    </div>
+    <div class="trust-row">
+      <span class="trust-chip"><span class="dot dot-g"></span>Aktif Sekarang</span>
+      <span class="trust-chip"><span class="dot dot-w"></span>Terverifikasi</span>
+      <span class="trust-chip"><span class="dot dot-gold"></span>Top Seller</span>
+    </div>
+  </div>
+
+  <!-- ── TAB: PRODUK ── -->
+  <div id="tab-produk" class="tab-panel active">
+    <div class="section">
+      <div class="sec-head fi fi-1">
+        <span class="sec-title">Produk Kami</span>
+        <span class="sec-count" id="produkCount">4 Produk</span>
+      </div>
+
+      <!-- STATUS BANNER — diisi oleh JS dari Firebase -->
+      <div id="maintenanceBanner" class="hidden"></div>
+
+      <!-- Produk 1: APK -->
+      <div class="prod-card fi fi-2" id="card-apk">
+        <span class="popular-ribbon">★ POPULER</span>
+        <div class="prod-img">
+          <img src="botspaceman.webp" alt="Spaceman Predictor Apk" onerror="this.outerHTML='🤖'"/>
+        </div>
+        <div class="prod-info">
+          <div class="prod-name">Spaceman Predictor Apk</div>
+          <div class="prod-desc">Aplikasi prediksi canggih untuk game Spaceman. Akurasi tinggi, update rutin, mudah digunakan.</div>
+          <div class="prod-tags">
+            <span class="ptag">Android</span>
+            <span class="ptag">AI Predictor</span>
+            <span class="ptag">Auto Update</span>
+          </div>
+          <div class="prod-meta">
+            <span class="prod-price">Rp100.000 <small>/lisensi</small></span>
+            <span class="stock-badge s-in" id="badge-apk">● Tersedia</span>
+          </div>
+          <div id="status-apk"></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-buy" id="btn-apk" style="flex:1;"
+              onclick="goToQRIS('Spaceman Predictor Apk','Rp100.000',['Spaceman Predictor Apk — 1 lisensi'],'apk')">⚡ Beli</button>
+            <button class="btn-buy" style="flex:0 0 42px;padding:0;font-size:18px;" title="Tambah ke Keranjang"
+              onclick="addToCart('apk','Spaceman Predictor Apk','Rp100.000',100000)">🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produk 2: Telegram -->
+      <div class="prod-card fi fi-3" id="card-telegram">
+        <div class="prod-img">
+          <img src="botspacemantelegram.webp" alt="Spaceman Predictor Telegram" onerror="this.outerHTML='💬'"/>
+        </div>
+        <div class="prod-info">
+          <div class="prod-name">Spaceman Predictor Telegram</div>
+          <div class="prod-desc">Bot Telegram eksklusif dengan sinyal prediksi real-time langsung di chat kamu. <span class="bundling-note">⚠️ Hanya tersedia dalam paket Bundling APK + Telegram.</span></div>
+          <div class="prod-tags">
+            <span class="ptag">Telegram</span>
+            <span class="ptag">Real-time</span>
+            <span class="ptag">VIP Signal</span>
+            <span class="ptag bundling-only-tag">Bundling Only</span>
+          </div>
+          <div class="prod-meta">
+            <span class="prod-price">Rp50.000 <small>/bulan</small></span>
+            <span class="stock-badge" id="badge-telegram">● —</span>
+          </div>
+          <div id="status-telegram"></div>
+          <button class="btn-buy bundling-redirect" id="btn-telegram"
+            onclick="switchTab('ulasan', document.querySelector('.nav-link:nth-child(2)'))">
+            📦 Lihat Paket Bundling
+          </button>
+        </div>
+      </div>
+
+      <!-- Produk 3: Panel Predictor -->
+      <div class="prod-card prod-card-panel fi fi-4" id="card-panel">
+        <span class="popular-ribbon ribbon-blue">🖥 WEB TOOL</span>
+        <div class="prod-img prod-img-panel">
+          <div class="panel-preview-mock">
+            <div class="ppm-bar"><span></span><span></span><span></span></div>
+            <div class="ppm-content">
+              <div class="ppm-label">PREDIKSI</div>
+              <div class="ppm-value" id="ppmVal">8.42×</div>
+              <div class="ppm-sub">Spaceman Predictor Panel</div>
+            </div>
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-name">Panel Predictor Spaceman</div>
+          <div class="prod-desc">Widget prediksi yang berjalan <strong>di semua website</strong> — muncul sebagai kotak kecil mengambang yang bisa dipindah-pindah, aktif selama sesi browsing kamu.</div>
+          <div class="prod-tags">
+            <span class="ptag ptag-blue">All Website</span>
+            <span class="ptag ptag-blue">Floating Widget</span>
+            <span class="ptag ptag-blue">Real-time</span>
+            <span class="ptag ptag-blue">Draggable</span>
+          </div>
+
+          <!-- Spesifikasi khusus -->
+          <div class="spec-box">
+            <div class="spec-title">⚙ Spesifikasi Produk</div>
+            <div class="spec-row"><span class="spec-k">Kompatibilitas</span><span class="spec-v">Semua browser modern (Chrome, Firefox, Edge)</span></div>
+            <div class="spec-row"><span class="spec-k">Cara Kerja</span><span class="spec-v">Script diinstall sekali, aktif di semua tab & web</span></div>
+            <div class="spec-row"><span class="spec-k">Tampilan</span><span class="spec-v">Kotak kecil mengambang, bisa drag & pindah posisi</span></div>
+            <div class="spec-row"><span class="spec-k">Sinyal</span><span class="spec-v">Prediksi multiplier real-time dengan akurasi tinggi</span></div>
+            <div class="spec-row"><span class="spec-k">Update</span><span class="spec-v">Otomatis, tidak perlu reinstall manual</span></div>
+            <div class="spec-row"><span class="spec-k">Lisensi</span><span class="spec-v">1 akun browser, aktif seumur hidup</span></div>
+          </div>
+
+          <div class="prod-meta" style="margin-top:12px;">
+            <span class="prod-price">Rp500.000 <small>/lisensi</small></span>
+            <span class="stock-badge s-in" id="badge-panel">● Tersedia</span>
+          </div>
+          <div id="status-panel"></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-buy btn-buy-blue" id="btn-panel" style="flex:1;"
+              onclick="goToQRIS('Panel Predictor Spaceman','Rp500.000',['Panel Predictor Spaceman — 1 lisensi seumur hidup'],'panel')">⚡ Beli</button>
+            <button class="btn-buy btn-buy-blue" style="flex:0 0 42px;padding:0;font-size:18px;" title="Tambah ke Keranjang"
+              onclick="addToCart('panel','Panel Predictor Spaceman','Rp500.000',500000)">🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Produk 4: Spesial / Reseller -->
+      <div class="prod-card prod-card-special fi" id="card-spesial">
+        <span class="popular-ribbon ribbon-gold">👑 SPESIAL</span>
+        <div class="prod-img prod-img-special">
+          <div class="special-icon-wrap">
+            <div class="special-icon">👑</div>
+            <div class="special-glow"></div>
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-name">Produk Spesial <span class="spesial-badge-inline">Reseller</span></div>
+          <div class="prod-desc">Paket lengkap untuk kamu yang ingin <strong>berjualan kembali</strong>. Dapatkan akses semua produk + tutorial jualan + koneksi langsung ke admin.</div>
+          <div class="prod-tags">
+            <span class="ptag ptag-gold">Bisa Dijual Lagi</span>
+            <span class="ptag ptag-gold">Tutorial Lengkap</span>
+            <span class="ptag ptag-gold">Akses Admin</span>
+          </div>
+
+          <!-- Isi Paket -->
+          <div class="spec-box spec-box-gold">
+            <div class="spec-title">🎁 Isi Paket Spesial</div>
+            <div class="spec-row"><span class="spec-k">✓ Produk</span><span class="spec-v">Semua produk (APK + Telegram + Panel)</span></div>
+            <div class="spec-row"><span class="spec-k">✓ Tutorial</span><span class="spec-v">Panduan lengkap cara jual & marketing</span></div>
+            <div class="spec-row"><span class="spec-k">✓ Hak Jual</span><span class="spec-v">Boleh dijual kembali dengan harga sendiri</span></div>
+            <div class="spec-row"><span class="spec-k">✓ Koneksi</span><span class="spec-v">Terhubung langsung ke admin & support</span></div>
+            <div class="spec-row"><span class="spec-k">✓ Materi</span><span class="spec-v">File promosi siap pakai (banner, caption, dll)</span></div>
+            <div class="spec-row"><span class="spec-k">✓ Update</span><span class="spec-v">Dapat semua update produk selamanya</span></div>
+          </div>
+
+          <div class="prod-meta" style="margin-top:12px;">
+            <span class="prod-price">Rp700.000 <small>/paket</small></span>
+            <span class="stock-badge s-in" id="badge-spesial">● Tersedia</span>
+          </div>
+          <div id="status-spesial"></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-buy btn-buy-gold" id="btn-spesial" style="flex:1;"
+              onclick="goToQRIS('Produk Spesial Reseller','Rp700.000',['Semua Produk (APK + Telegram + Panel)','Tutorial Lengkap + Materi Promosi','Hak Jual Kembali','Koneksi Langsung ke Admin'],'spesial')">👑 Beli Spesial</button>
+            <button class="btn-buy btn-buy-gold" style="flex:0 0 42px;padding:0;font-size:18px;" title="Tambah ke Keranjang"
+              onclick="addToCart('spesial','Produk Spesial Reseller','Rp700.000',700000)">🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-grid fi fi-4">
+        <div class="info-card"><div class="info-icon">⚡</div><div class="info-lbl">Pengiriman</div><div class="info-val">Instan</div></div>
+        <div class="info-card"><div class="info-icon">🔒</div><div class="info-lbl">Keamanan</div><div class="info-val">Terenkripsi</div></div>
+        <div class="info-card"><div class="info-icon">🎯</div><div class="info-lbl">Garansi</div><div class="info-val">7 Hari</div></div>
+        <div class="info-card"><div class="info-icon">💬</div><div class="info-lbl">Support</div><div class="info-val">24/7</div></div>
+      </div>
+
+      <!-- Cara Order -->
+      <div class="sec-head fi"><span class="sec-title">Cara Order</span></div>
+      <div class="step-item fi fi-1">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Pilih Produk</strong><span>Klik "Beli Sekarang" pada produk yang diinginkan.</span></div>
+      </div>
+      <div class="step-item fi fi-2">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Scan QRIS</strong><span>Pindai kode QR menggunakan e-wallet atau mobile banking.</span></div>
+      </div>
+      <div class="step-item fi fi-3">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Bayar Tepat Nominal</strong><span>Transfer sesuai nominal yang tertera, jangan lebih atau kurang.</span></div>
+      </div>
+      <div class="step-item fi fi-4">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Terima Produk</strong><span>Klik "Cek Payment" dan produk dikirim otomatis ke kamu!</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: PROMO ── -->
+  <div id="tab-ulasan" class="tab-panel">
+    <div class="section">
+
+      <div class="sec-head fi fi-1">
+        <span class="sec-title">📦 Paket Bundling</span>
+        <span class="sec-count">Penawaran Terbaik</span>
+      </div>
+
+      <!-- Bundling Card -->
+      <div class="bundling-card fi fi-2" id="card-bundling">
+        <div class="bundling-top">
+          <div class="bundling-badge">🔥 HEMAT Rp20.000</div>
+          <div id="badge-bundling-wrap">
+            <span class="stock-badge s-in" id="badge-bundling">● Tersedia</span>
+          </div>
+        </div>
+
+        <div class="bundling-title">Bundling APK + Telegram</div>
+        <div class="bundling-desc">Dapatkan Spaceman Predictor Apk dan Bot Telegram sekaligus dalam satu paket harga spesial. Nikmati prediksi dari dua platform sekaligus!</div>
+
+        <div class="bundling-includes">
+          <div class="bi-title">Termasuk dalam paket:</div>
+          <div class="bi-item">
+            <span class="bi-icon">✓</span>
+            <div>
+              <div class="bi-name">Spaceman Predictor Apk</div>
+              <div class="bi-sub">1 lisensi • Android • AI Predictor</div>
+            </div>
+            <span class="bi-price">Rp100.000</span>
+          </div>
+          <div class="bi-item">
+            <span class="bi-icon">✓</span>
+            <div>
+              <div class="bi-name">Spaceman Predictor Telegram</div>
+              <div class="bi-sub">1 bulan • Real-time signal • VIP</div>
+            </div>
+            <span class="bi-price">Rp50.000</span>
+          </div>
+        </div>
+
+        <div class="bundling-price-row">
+          <div>
+            <div class="bundling-original">Rp150.000</div>
+            <div class="bundling-price">Rp130.000 <small>/paket</small></div>
+          </div>
+          <div id="status-bundling"></div>
+        </div>
+          <div style="display:flex;gap:6px;">
+          <button class="btn-buy bundling-buy-btn" id="btn-bundling" style="flex:1;"
+            onclick="goToQRIS('Bundling APK + Telegram','Rp130.000',['Spaceman Predictor Apk — 1 lisensi','Spaceman Predictor Telegram — 1 bulan'],'bundling')">
+            ⚡ Beli Bundling
+          </button>
+          <button class="btn-buy bundling-buy-btn" style="flex:0 0 42px;padding:0;font-size:18px;" title="Tambah ke Keranjang"
+            onclick="addToCart('bundling','Bundling APK + Telegram','Rp130.000',130000)">🛒</button>
+        </div>
+      </div>
+
+      <!-- Why Bundling -->
+      <div class="sec-head fi fi-3" style="margin-top:6px;"><span class="sec-title">Mengapa Pilih Bundling?</span></div>
+      <div class="why-grid fi fi-3">
+        <div class="why-card"><div class="why-icon">💰</div><div class="why-title">Lebih Hemat</div><div class="why-desc">Hemat Rp20.000 dibanding beli satuan</div></div>
+        <div class="why-card"><div class="why-icon">📱</div><div class="why-title">Dua Platform</div><div class="why-desc">APK + Telegram aktif sekaligus</div></div>
+        <div class="why-card"><div class="why-icon">⚡</div><div class="why-title">Satu Pembayaran</div><div class="why-desc">Bayar sekali, dapat dua produk</div></div>
+        <div class="why-card"><div class="why-icon">🎯</div><div class="why-title">Akurasi Ganda</div><div class="why-desc">Sinyal dari dua sumber sekaligus</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── TAB: BANTUAN ── -->
+  <div id="tab-bantuan" class="tab-panel">
+    <div class="section">
+      <div class="sec-head fi"><span class="sec-title">Pertanyaan Umum</span></div>
+
+      <div class="faq-item fi fi-1">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Berapa lama produk dikirim setelah bayar?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Pengiriman bersifat instan dan otomatis setelah pembayaran terverifikasi. Biasanya produk langsung dikirim dalam hitungan detik.</div>
+      </div>
+
+      <div class="faq-item fi fi-2">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Apakah ada garansi jika produk bermasalah?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Ya, kami menyediakan garansi 7 hari penuh. Jika produk tidak berfungsi sesuai deskripsi, hubungi CS kami dan kami akan bantu secepatnya.</div>
+      </div>
+
+      <div class="faq-item fi fi-3">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Metode pembayaran apa yang diterima?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Kami menerima semua metode pembayaran via QRIS: GoPay, OVO, DANA, ShopeePay, LinkAja, BCA Mobile, Mandiri Livin, dan semua mobile banking yang mendukung QRIS.</div>
+      </div>
+
+      <div class="faq-item fi fi-4">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Bagaimana cara menggunakan produk setelah dibeli?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Setelah pembayaran sukses, kamu akan menerima link download beserta panduan instalasi. Ikuti langkah-langkah yang tertera di dokumen panduan. Jika ada kendala, CS kami siap membantu.</div>
+      </div>
+
+      <div class="faq-item fi">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Apakah produk bisa digunakan di semua perangkat?
+          <span class="arrow">▼</span>
+        </button>
+        <div class="faq-a">Spaceman Predictor Apk mendukung Android 6.0 ke atas. Untuk versi Telegram, cukup memiliki akun Telegram aktif di perangkat apapun.</div>
+      </div>
+
+      <div class="bantuan-action-row fi">
+        <button class="bantuan-btn bantuan-btn-lapor" onclick="openModal()">
+          <span class="bantuan-btn-icon">⚠️</span>
+          <div>
+            <div class="bantuan-btn-title">Buat Laporan</div>
+            <div class="bantuan-btn-sub">Laporkan masalah pesanan kamu</div>
+          </div>
+        </button>
+        <button class="bantuan-btn bantuan-btn-cs" onclick="openCekModal()">
+          <span class="bantuan-btn-icon">💬</span>
+          <div>
+            <div class="bantuan-btn-title">CS Admin</div>
+            <div class="bantuan-btn-sub"><span class="cs-dot"></span>Aktif 24 jam</div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2025 <strong>PT Digital Asia Enginering</strong> &nbsp;·&nbsp;
+    <a href="#" onclick="openLegal('privasi');return false;">Kebijakan Privasi</a> &nbsp;·&nbsp; <a href="#" onclick="openLegal('syarat');return false;">Syarat &amp; Ketentuan</a>
+  </div>
+
+  <!-- FAB Laporan -->
+  <button class="lapor-fab" onclick="openModal()">⚠ Laporkan</button>
+
+</div><!-- /halamanToko -->
+
+
+<!-- ════════════════════════════════════
+     MODAL LAPORAN
+════════════════════════════════════ -->
+<div class="modal-overlay" id="modalLaporan" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">Laporkan</div>
+
+    <!-- Tabs -->
+    <div class="laporan-tabs">
+      <button class="laporan-tab active" id="ltab-umum" onclick="switchLaporanTab('umum')">📋 Produk / Umum</button>
+      <button class="laporan-tab" id="ltab-bayar" onclick="switchLaporanTab('bayar')">💳 Konfirmasi Bayar</button>
+    </div>
+
+    <!-- Panel: Umum -->
+    <div class="laporan-tab-panel active" id="lpanel-umum">
+      <div class="modal-sub" style="margin-bottom:14px;">Isi formulir di bawah agar tim kami dapat menindaklanjuti laporan kamu dengan cepat.</div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap *</label>
+        <input class="form-input" id="l-nama" type="text" placeholder="Masukkan nama kamu"/>
+        <div class="field-err" id="err-nama">Nama wajib diisi.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor / Email (untuk dihubungi) *</label>
+        <input class="form-input" id="l-kontak" type="text" placeholder="No. WhatsApp atau email kamu"/>
+        <div class="field-err" id="err-kontak">Nomor/email wajib diisi agar admin bisa menghubungi kamu.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alasan Laporan *</label>
+        <select class="form-select" id="l-alasan">
+          <option value="">— Pilih alasan —</option>
+          <option value="Produk tidak sesuai">Produk tidak sesuai</option>
+          <option value="Penipuan / Scam">Penipuan / Scam</option>
+          <option value="Pelanggaran hak cipta">Pelanggaran hak cipta</option>
+          <option value="Konten berbahaya">Konten berbahaya</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <div class="field-err" id="err-alasan">Pilih alasan laporan.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Keterangan Tambahan</label>
+        <textarea class="form-textarea" id="l-detail" placeholder="Jelaskan masalah secara singkat (opsional)..."></textarea>
+      </div>
+      <div class="form-note" style="margin-bottom:14px;">* Wajib diisi. Laporan diproses dalam 1×24 jam.</div>
+      <button class="btn-submit" id="btnKirimLaporan" onclick="kirimLaporan()">Kirim Laporan</button>
+    </div>
+
+    <!-- Panel: Konfirmasi Bayar -->
+    <div class="laporan-tab-panel" id="lpanel-bayar">
+      <div class="modal-sub" style="margin-bottom:14px;">Sudah bayar? Isi form ini agar admin segera mengkonfirmasi pembayaran kamu.</div>
+
+      <!-- Kode terpilih -->
+      <div class="kode-display-box" id="kode-display-box">
+        <div class="kode-display-lbl">Kode Pembayaran Produk</div>
+        <div class="kode-display-val" id="kode-display-val">—</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap *</label>
+        <input class="form-input" id="b-nama" type="text" placeholder="Masukkan nama kamu"/>
+        <div class="field-err" id="berr-nama">Nama wajib diisi.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor / Email *</label>
+        <input class="form-input" id="b-kontak" type="text" placeholder="No. WhatsApp atau email kamu"/>
+        <div class="field-err" id="berr-kontak">Nomor/email wajib diisi.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Produk yang dibeli *</label>
+        <input class="form-input" id="b-produk" type="text" placeholder="Nama produk" readonly style="background:var(--bg3);"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kode Pembayaran *</label>
+        <input class="form-input" id="b-kode" type="text" placeholder="Kode otomatis dari produk" readonly style="background:var(--bg3);font-family:monospace;font-weight:700;color:var(--gold);"/>
+        <div class="field-err" id="berr-kode">Kode pembayaran tidak ditemukan.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nominal Transfer</label>
+        <input class="form-input" id="b-nominal" type="text" placeholder="Contoh: Rp100.000"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Keterangan Tambahan</label>
+        <textarea class="form-textarea" id="b-detail" placeholder="Contoh: bukti transfer ada di WA, dll (opsional)..."></textarea>
+      </div>
+      <div class="form-note" style="margin-bottom:14px;">* Wajib diisi. Konfirmasi diproses dalam 1×24 jam.</div>
+      <button class="btn-submit" id="btnKirimBayar" onclick="kirimLaporanBayar()">💳 Kirim Konfirmasi Bayar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     MODAL CEK LAPORAN
+════════════════════════════════════ -->
+<div class="cek-modal-overlay" id="modalCekLaporan" onclick="handleCekOverlay(event)">
+  <div class="cek-modal-box">
+    <button class="cek-modal-close" onclick="closeCekModal()">&#x2715;</button>
+    <div class="cek-modal-title">&#128269; Cek Status Laporan</div>
+    <div class="cek-modal-sub">Masukkan nomor WhatsApp atau email yang kamu gunakan saat melapor.</div>
+
+    <div class="cek-input-row">
+      <input class="cek-input" id="cekKontak" type="text"
+        placeholder="Contoh: 081234567890 atau email@gmail.com"
+        onkeydown="if(event.key==='Enter') cariLaporan()"/>
+      <button class="cek-btn" id="btnCari" onclick="cariLaporan()">Cari</button>
+    </div>
+    <div class="cek-hint">* Pencarian berdasarkan nomor/email yang didaftarkan saat laporan dibuat.</div>
+
+    <div class="cek-result" id="cekResult"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Laporan berhasil dikirim! Tim kami akan segera menghubungi kamu.</div>
+
+
+<!-- ════════════════════════════════════
+     HALAMAN QRIS
+════════════════════════════════════ -->
+<div id="halamanQRIS" class="page hidden">
+  <div class="pay-wrap">
+    <button class="pay-back" onclick="kembali()">← Kembali ke Toko</button>
+
+    <div class="pay-head">
+      <h2>Selesaikan Pembayaran</h2>
+      <p>Scan kode QRIS untuk menyelesaikan pesananmu</p>
+    </div>
+
+    <div class="pay-card">
+      <!-- Order Summary -->
+      <div class="order-sum">
+        <div class="o-row"><span class="o-label">Paket / Produk</span><span class="o-val" id="sumProd">—</span></div>
+        <div id="sumItemsWrap"></div>
+        <div class="o-row"><span class="o-label">Metode Bayar</span><span class="o-val">QRIS</span></div>
+        <div class="o-row o-total"><span class="o-label">Total Bayar</span><span class="o-val" id="sumPrice">—</span></div>
+      </div>
+      <!-- Kode Pembayaran -->
+      <div class="qris-kode-box">
+        <div class="qris-kode-top">
+          <span class="qris-kode-lbl">&#128273; Kode Pembayaran</span>
+          <span class="qris-kode-hint">Simpan kode ini &mdash; perlu saat konfirmasi bayar</span>
+        </div>
+        <div class="qris-kode-row">
+          <span class="qris-kode-val" id="qrisKodeVal">—</span>
+          <button class="qris-kode-copy" id="qrisKodeCopyBtn" onclick="copyQrisKode()">Salin</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="payLoading" class="load-wrap">
+        <div class="spinner"></div>
+        <div class="load-text">Memuat kode QRIS…</div>
+      </div>
+
+      <!-- QRIS -->
+      <div id="qrisSection" class="qris-section hidden">
+        <div class="qris-frame">
+          <img src="qris.jpg" alt="QRIS Pembayaran"
+            onerror="this.outerHTML='<div style=\'width:190px;height:190px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border-radius:6px;\'><span style=\'font-size:48px\'>🔲</span><small style=\'color:#333;font-family:sans-serif\'>qris.jpg</small></div>'"/>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-wrap">
+          <div class="timer-bar-track"><div class="timer-bar-fill" id="tBar"></div></div>
+          <div class="timer-label" id="tLabel">⏳ Berlaku: <span class="t-num" id="tCount">2:00</span></div>
+        </div>
+
+        <!-- Panduan -->
+        <div class="pay-guide">
+          <div class="pg-item"><span class="pg-num">1</span>Buka aplikasi e-wallet atau mobile banking</div>
+          <div class="pg-item"><span class="pg-num">2</span>Pilih fitur <strong>Scan QR / QRIS</strong></div>
+          <div class="pg-item"><span class="pg-num">3</span>Arahkan kamera ke kode QR di atas</div>
+          <div class="pg-item"><span class="pg-num">4</span>Pastikan nominal tepat, lalu konfirmasi</div>
+        </div>
+      </div>
+
+      <!-- Notif -->
+      <div class="notif-box notif-err" id="notifErr">
+        ⚠️ <strong>Pembayaran belum terverifikasi.</strong><br>
+        Pastikan nominal sesuai dan coba lagi beberapa saat.
+      </div>
+      <div class="notif-box notif-ok" id="notifOk">
+        ✅ <strong>Pembayaran berhasil!</strong><br>
+        Produk sedang diproses dan akan segera dikirim.
+      </div>
+
+      <!-- Buttons -->
+      <button class="pay-btn pay-btn-secondary" id="btnShowQris" onclick="reloadQris()">🔄 Tampilkan QRIS Lagi</button>
+      <button class="pay-btn pay-btn-sudah" onclick="openLaporanBayarFromQRIS()">✓ Sudah Bayar — Konfirmasi</button>
+      <button class="pay-btn pay-btn-ghost" onclick="kembali()">← Kembali ke Toko</button>
+
+      <div class="pay-support">Butuh bantuan? <a href="#">Hubungi CS kami</a></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, push, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  /* ── Firebase Init ── */
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCkLgYUCO_Q5dryeGR8Xtc8VSA04W_bH34",
+    authDomain:        "web-login-383a4.firebaseapp.com",
+    databaseURL:       "https://web-login-383a4-default-rtdb.firebaseio.com",
+    projectId:         "web-login-383a4",
+    storageBucket:     "web-login-383a4.firebasestorage.app",
+    messagingSenderId: "43262683349",
+    appId:             "1:43262683349:web:58c4044ff3c96cd10e9a5c",
+    measurementId:     "G-K7YH1FXENN"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  /* ── Product Status Listener ── */
+  onValue(ref(db, 'produk_status'), snap => {
+    const s = snap.exists() ? snap.val() : {};
+    applyProductStatus('apk',       s.apk       || { status: 'tersedia' });
+    applyProductStatus('telegram',  s.telegram  || { status: 'habis' });
+    applyProductStatus('bundling',  s.bundling  || { status: 'tersedia' });
+    applyProductStatus('panel',     s.panel     || { status: 'tersedia' });
+    applyProductStatus('spesial',   s.spesial   || { status: 'tersedia' });
+  });
+
+  function applyProductStatus(id, cfg) {
+    const st   = cfg.status || 'tersedia';   // tersedia | habis | maintenance
+    const note = cfg.catatan || '';
+
+    const badge    = document.getElementById('badge-' + id);
+    const btnEl    = document.getElementById('btn-' + id);
+    const statusEl = document.getElementById('status-' + id);
+    const cardEl   = document.getElementById('card-' + id);
+
+    if (!badge) return;
+
+    // Badge text & class
+    badge.className = 'stock-badge';
+    if (st === 'tersedia') {
+      badge.classList.add('s-in');
+      badge.textContent = '● Tersedia';
+    } else if (st === 'habis') {
+      badge.classList.add('s-out');
+      badge.textContent = '● Habis';
+    } else if (st === 'maintenance') {
+      badge.classList.add('s-maintenance');
+      badge.style.cssText = 'background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);';
+      badge.textContent = '⚙ Maintenance';
+    }
+
+    // Maintenance note under card
+    if (statusEl) {
+      if ((st === 'maintenance' || st === 'habis') && note) {
+        statusEl.innerHTML = '<div class="status-maintenance-bar">⚠ ' + note + '</div>';
+      } else {
+        statusEl.innerHTML = '';
+      }
+    }
+
+    // Button state
+    if (btnEl) {
+      if (st === 'tersedia') {
+        btnEl.disabled = false;
+        btnEl.classList.remove('disabled');
+        // Restore correct label
+        if (id === 'apk')      btnEl.textContent = '⚡ Beli Sekarang';
+        if (id === 'bundling') btnEl.textContent = '⚡ Beli Bundling Sekarang';
+        if (id === 'panel')    btnEl.textContent = '⚡ Beli Sekarang';
+        if (id === 'spesial')  btnEl.textContent = '👑 Beli Paket Spesial';
+      } else {
+        btnEl.disabled = true;
+        btnEl.classList.add('disabled');
+        if (id === 'bundling') btnEl.textContent = st === 'maintenance' ? '⚙ Sedang Maintenance' : '🔒 Stok Habis';
+        if (id === 'apk')      btnEl.textContent = st === 'maintenance' ? '⚙ Sedang Maintenance' : '🔒 Stok Habis';
+        if (id === 'panel')    btnEl.textContent = st === 'maintenance' ? '⚙ Sedang Maintenance' : '🔒 Stok Habis';
+        if (id === 'spesial')  btnEl.textContent = st === 'maintenance' ? '⚙ Sedang Maintenance' : '🔒 Stok Habis';
+      }
+    }
+
+    // Card dim
+    if (cardEl) {
+      cardEl.classList.toggle('out-of-stock', st !== 'tersedia');
+    }
+
+    // Global maintenance banner (show if any product is on maintenance)
+    refreshMaintenanceBanner(s);
+  }
+
+  let _lastStatus = {};
+  function refreshMaintenanceBanner(s) {
+    _lastStatus = s;
+    const banner = document.getElementById('maintenanceBanner');
+    if (!banner) return;
+    const items = Object.entries(s).filter(([,v]) => v.status === 'maintenance');
+    if (items.length > 0) {
+      banner.className = 'maintenance-banner-main fi';
+      banner.innerHTML = '<div class="mb-icon">⚙</div><div><div class="mb-title">Sedang Maintenance</div>'
+        + '<div class="mb-sub">' + items.map(([k, v]) => {
+            const names = { apk: 'Spaceman Predictor Apk', telegram: 'Bot Telegram', bundling: 'Paket Bundling', panel: 'Panel Predictor', spesial: 'Produk Spesial' };
+            return (names[k] || k) + (v.catatan ? ': ' + v.catatan : '');
+          }).join(' &nbsp;|&nbsp; ') + '</div></div>';
+    } else {
+      banner.className = 'hidden';
+      banner.innerHTML = '';
+    }
+  }
+
+  /* ── Kirim Laporan Bayar ── */
+  window.kirimBayarFirebase = async function(data) {
+    await push(ref(db, 'laporan_bayar'), {
+      ...data,
+      status: 'Menunggu Konfirmasi',
+      waktu: new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+      timestamp: Date.now()
+    });
+  };
+
+  /* ── Cek Laporan: query Firebase ── */
+  window.openCekModal = function() {
+    document.getElementById('cekKontak').value = '';
+    document.getElementById('cekResult').innerHTML = '';
+    document.getElementById('modalCekLaporan').classList.add('open');
+    setTimeout(() => document.getElementById('cekKontak').focus(), 100);
+  };
+  window.closeCekModal = function() {
+    document.getElementById('modalCekLaporan').classList.remove('open');
+  };
+  window.handleCekOverlay = function(e) {
+    if (e.target === document.getElementById('modalCekLaporan')) window.closeCekModal();
+  };
+
+  window.cariLaporan = async function() {
+    const q = document.getElementById('cekKontak').value.trim().toLowerCase();
+    if (!q) {
+      document.getElementById('cekResult').innerHTML =
+        '<div class="cek-empty"><div class="cek-empty-icon">&#9757;</div><div class="cek-empty-title">Masukkan nomor atau email dulu</div></div>';
+      return;
+    }
+
+    // Show loading
+    document.getElementById('cekResult').innerHTML =
+      '<div class="cek-loading"><div class="cek-spinner"></div><span class="cek-loading-text">Mencari laporan kamu&#8230;</span></div>';
+    document.getElementById('btnCari').disabled = true;
+
+    try {
+      const snap = await get(ref(db, 'laporan'));
+      const results = [];
+      if (snap.exists()) {
+        snap.forEach(child => {
+          const r = child.val();
+          if ((r.kontak || '').toLowerCase().includes(q)) {
+            results.push({ fbKey: child.key, ...r });
+          }
+        });
+        results.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      }
+      renderCekResults(results);
+    } catch(err) {
+      console.error(err);
+      document.getElementById('cekResult').innerHTML =
+        '<div class="cek-empty"><div class="cek-empty-icon">&#9888;</div><div class="cek-empty-title">Gagal memuat data</div><div class="cek-empty-sub">Periksa koneksi internet kamu lalu coba lagi.</div></div>';
+    } finally {
+      document.getElementById('btnCari').disabled = false;
+    }
+  };
+
+  function statusInfo(st) {
+    if (st === 'Diproses') return { cls: 'cek-s-proses', icon: '&#9203;', label: 'Sedang Diproses' };
+    if (st === 'Selesai')  return { cls: 'cek-s-selesai', icon: '&#10003;', label: 'Selesai' };
+    return { cls: 'cek-s-baru', icon: '&#128338;', label: 'Laporan Diterima' };
+  }
+
+  function timelineStep(st) {
+    // steps: Diterima -> Diproses -> Selesai
+    const idx = st === 'Selesai' ? 2 : st === 'Diproses' ? 1 : 0;
+    const steps = ['Diterima', 'Diproses', 'Selesai'];
+    let html = '<div class="cek-timeline">';
+    steps.forEach((s, i) => {
+      const isDone   = i < idx;
+      const isActive = i === idx;
+      const dotCls   = isDone ? 'done' : isActive ? 'active' : '';
+      const lblCls   = isDone ? 'done' : isActive ? 'active' : '';
+      const icon     = isDone ? '&#10003;' : isActive ? (i===0?'&#128338;': i===1?'&#9203;':'&#10003;') : (i+1);
+      html += '<div class="cek-tl-step">';
+      html += '<div class="cek-tl-dot ' + dotCls + '">' + icon + '</div>';
+      html += '<div class="cek-tl-label ' + lblCls + '">' + s + '</div>';
+      html += '</div>';
+      if (i < steps.length - 1) {
+        html += '<div class="cek-tl-line ' + (isDone ? 'done' : '') + '"></div>';
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function renderCekResults(list) {
+    const el = document.getElementById('cekResult');
+    if (list.length === 0) {
+      el.innerHTML = '<div class="cek-empty">' +
+        '<div class="cek-empty-icon">&#128269;</div>' +
+        '<div class="cek-empty-title">Tidak ada laporan ditemukan</div>' +
+        '<div class="cek-empty-sub">Pastikan nomor/email yang kamu masukkan sama persis dengan saat melapor.</div>' +
+        '</div>';
+      return;
+    }
+    let html = '<div class="cek-count-row"><span class="cek-count-lbl">Laporan ditemukan &nbsp;<span class="cek-count-num">' + list.length + ' laporan</span></span><button class="cek-refresh-btn" id="btnRefreshHasil" onclick="refreshLaporan()" title="Refresh hasil"><span class="r-icon">&#8635;</span> Refresh</button></div>';
+    html += '<div class="cek-results-scroll">';
+    list.forEach(r => {
+      const st   = r.status || 'Baru';
+      const si   = statusInfo(st);
+      html += '<div class="cek-card">';
+      html +=   '<div class="cek-card-top">';
+      html +=     '<div><div class="cek-card-alasan">' + esc(r.alasan) + '</div>';
+      html +=     '<div class="cek-card-waktu">&#128337; ' + esc(r.waktu) + '</div></div>';
+      html +=     '<span class="cek-status-badge ' + si.cls + '">' + si.icon + ' ' + si.label + '</span>';
+      html +=   '</div>';
+      html +=   timelineStep(st);
+      if (r.detail) {
+        html += '<div class="cek-card-detail"><strong style="color:var(--text2)">Catatan kamu:</strong> ' + esc(r.detail) + '</div>';
+      }
+      // Admin reply
+      if (r.balasan) {
+        const nama = r.namaAdmin ? r.namaAdmin : 'Admin';
+        html += '<div class="admin-reply-box">';
+        html += '<div class="admin-reply-header">' + esc(nama) + ' &nbsp;·&nbsp; CS SpaceMan Store</div>';
+        html += '<div class="admin-reply-text">' + esc(r.balasan) + '</div>';
+        if (r.waktuBalasan) {
+          html += '<div class="admin-reply-time">&#128337; ' + esc(r.waktuBalasan) + '</div>';
+        }
+        html += '</div>';
+      } else {
+        html += '<div class="no-reply-box">&#8987; Menunggu balasan admin...</div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  window.refreshLaporan = async function() {
+    const btn = document.getElementById('btnRefreshHasil');
+    if (btn) { btn.disabled = true; btn.classList.add('spinning'); }
+    await window.cariLaporan();
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.classList.remove('spinning'); }
+    }, 650);
+  };
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Expose kirimLaporan ke global ── */
+  window.kirimLaporanFirebase = async function() {
+    // Validasi
+    document.querySelectorAll('.field-err').forEach(x => x.style.display = 'none');
+    const nama   = document.getElementById('l-nama').value.trim();
+    const kontak = document.getElementById('l-kontak').value.trim();
+    const alasan = document.getElementById('l-alasan').value;
+    const detail = document.getElementById('l-detail').value.trim();
+    let ok = true;
+    if (!nama)   { document.getElementById('err-nama').style.display   = 'block'; ok = false; }
+    if (!kontak) { document.getElementById('err-kontak').style.display = 'block'; ok = false; }
+    if (!alasan) { document.getElementById('err-alasan').style.display = 'block'; ok = false; }
+    if (!ok) return;
+
+    // Disable tombol saat loading
+    const btn = document.getElementById('btnKirimLaporan');
+    btn.disabled    = true;
+    btn.textContent = 'Mengirim…';
+
+    try {
+      await push(ref(db, 'laporan'), {
+        nama,
+        kontak,
+        alasan,
+        detail: detail || '',
+        status: 'Baru',
+        waktu:  new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }),
+        timestamp: Date.now()
+      });
+
+      // Reset form & tutup modal
+      document.getElementById('l-nama').value   = '';
+      document.getElementById('l-kontak').value = '';
+      document.getElementById('l-alasan').value = '';
+      document.getElementById('l-detail').value = '';
+      document.getElementById('modalLaporan').classList.remove('open');
+
+      // Toast sukses
+      const t = document.getElementById('toast');
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+
+    } catch (err) {
+      console.error('Firebase error:', err);
+      alert('Gagal mengirim laporan. Periksa koneksi internet kamu dan coba lagi.');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Kirim Laporan';
+    }
+  };
+</script>
+
+<script>
+/* ─── WELCOME TOS ─── */
+(function initTos() {
+  // Check if user already agreed this session (sessionStorage) or ever (localStorage)
+  if (sessionStorage.getItem('tos_agreed') === '1' || localStorage.getItem('tos_agreed') === '1') {
+    const el = document.getElementById('tosScreen');
+    if (el) el.style.display = 'none';
+    return;
+  }
+  // Show TOS — body is locked
+  document.body.style.overflow = 'hidden';
+})();
+
+function checkTosScroll() {
+  const body = document.getElementById('tosBody');
+  const nudge = document.getElementById('tosNudge');
+  if (!body || !nudge) return;
+  const nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+  nudge.classList.toggle('hidden', nearBottom);
+}
+
+function toggleTosCheck() {
+  const box = document.getElementById('tosCheck');
+  const btn = document.getElementById('tosAgreeBtn');
+  if (!box) return;
+  const isChecked = box.classList.toggle('checked');
+  btn.classList.toggle('enabled', isChecked);
+}
+
+function acceptTos() {
+  const box = document.getElementById('tosCheck');
+  if (!box || !box.classList.contains('checked')) return;
+  // Save agreement
+  try { localStorage.setItem('tos_agreed', '1'); } catch(e) {}
+  sessionStorage.setItem('tos_agreed', '1');
+  // Animate out
+  const screen = document.getElementById('tosScreen');
+  screen.classList.add('hide-tos');
+  document.body.style.overflow = '';
+  setTimeout(() => { screen.style.display = 'none'; }, 420);
+}
+
+/* ─── LEGAL MODALS ─── */
+const LEGAL_CONTENT = {
+  privasi: {
+    title: 'Kebijakan Privasi',
+    updated: '12 Maret 2026',
+    intro: 'Selamat datang di website penjualan bot Spaceman. Kami menghargai privasi setiap pengguna yang menggunakan layanan di website ini. Dengan menggunakan website ini, Anda dianggap telah membaca dan menyetujui kebijakan privasi berikut.',
+    sections: [
+      { num: 1, title: 'Privasi Pengguna', body: 'Kami berkomitmen untuk menjaga privasi pengguna yang mengakses dan menggunakan layanan yang tersedia di website ini. Informasi yang berkaitan dengan penggunaan layanan hanya digunakan untuk menjalankan sistem website, meningkatkan kualitas layanan, dan menjaga keamanan platform.' },
+      { num: 2, title: 'Penggunaan Layanan', body: 'Data atau aktivitas yang terjadi di dalam website dapat digunakan untuk memastikan layanan berjalan dengan baik serta mencegah penyalahgunaan sistem. Kami berusaha menjaga keamanan sistem agar pengguna dapat menggunakan layanan dengan aman dan nyaman.' },
+      { num: 3, title: 'Keamanan Sistem', body: 'Kami menerapkan langkah-langkah keamanan yang wajar untuk melindungi sistem website dari akses yang tidak sah, penyalahgunaan, atau gangguan terhadap layanan. Namun demikian, penggunaan internet memiliki risiko tertentu sehingga kami tidak dapat menjamin keamanan sepenuhnya.' },
+      { num: 4, title: 'Pihak Ketiga', body: 'Website ini dapat menggunakan layanan pihak ketiga untuk mendukung operasional website, seperti sistem pembayaran atau layanan teknis lainnya. Penggunaan layanan pihak ketiga tersebut tunduk pada kebijakan masing-masing penyedia layanan.' },
+      { num: 5, title: 'Perubahan Kebijakan', body: 'Kami dapat memperbarui kebijakan privasi ini sewaktu-waktu tanpa pemberitahuan sebelumnya. Versi terbaru akan selalu tersedia di halaman ini.' },
+      { num: 6, title: 'Persetujuan Pengguna', body: 'Dengan menggunakan website ini, pengguna dianggap telah memahami dan menyetujui kebijakan privasi yang berlaku.' }
+    ]
+  },
+  syarat: {
+    title: 'Syarat & Ketentuan Layanan',
+    updated: '12 Maret 2026',
+    intro: 'Dengan mengakses dan menggunakan website ini, pengguna dianggap telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan berikut.',
+    sections: [
+      { num: 1, title: 'Layanan', body: 'Website ini menyediakan layanan penjualan bot untuk permainan Spaceman. Layanan yang tersedia di website dapat berubah atau diperbarui sewaktu-waktu sesuai dengan kebijakan pengelola website.' },
+      { num: 2, title: 'Tanggung Jawab Pengguna', body: 'Pengguna bertanggung jawab penuh atas penggunaan layanan yang tersedia di website ini. Segala aktivitas yang dilakukan menggunakan layanan website menjadi tanggung jawab pengguna masing-masing.' },
+      { num: 3, title: 'Pembayaran', body: 'Setiap transaksi yang dilakukan melalui website harus mengikuti metode pembayaran yang tersedia pada sistem. Setelah pembayaran berhasil dilakukan dan layanan diberikan, transaksi dianggap selesai.' },
+      { num: 4, title: 'Larangan Penggunaan', body: 'Pengguna dilarang menggunakan website ini untuk:', list: ['Aktivitas yang melanggar hukum', 'Penyalahgunaan layanan', 'Mengganggu sistem atau keamanan website'] },
+      { num: 5, title: 'Batasan Tanggung Jawab', body: 'Pengelola website tidak bertanggung jawab atas kerugian yang mungkin terjadi akibat penggunaan layanan yang tersedia di website ini. Pengguna memahami bahwa penggunaan layanan sepenuhnya menjadi risiko masing-masing.' },
+      { num: 6, title: 'Perubahan Layanan', body: 'Kami berhak mengubah, menambahkan, atau menghentikan layanan yang tersedia di website kapan saja tanpa pemberitahuan sebelumnya.' },
+      { num: 7, title: 'Persetujuan', body: 'Dengan menggunakan website ini, pengguna dianggap telah menyetujui seluruh syarat dan ketentuan yang berlaku.' }
+    ]
+  }
+};
+
+function openLegal(type) {
+  const data = LEGAL_CONTENT[type];
+  if (!data) return;
+  document.getElementById('legalTitle').textContent = data.title;
+  let html = '<div class="legal-updated">&#128337; Terakhir diperbarui: ' + data.updated + '</div>';
+  html += '<div class="legal-intro">' + data.intro + '</div>';
+  data.sections.forEach(sec => {
+    html += '<div class="legal-section">';
+    html += '<div class="legal-section-title"><span class="legal-section-num">' + sec.num + '</span>' + sec.title + '</div>';
+    html += '<div class="legal-section-body">' + sec.body;
+    if (sec.list) {
+      html += '<ul>' + sec.list.map(li => '<li>' + li + '</li>').join('') + '</ul>';
+    }
+    html += '</div></div>';
+  });
+  html += '<div class="legal-footer-note">&copy; 2025 PT Digital Asia Enginering. Semua hak dilindungi.</div>';
+  document.getElementById('legalBody').innerHTML = html;
+  document.getElementById('legalBody').scrollTop = 0;
+  document.getElementById('legalOverlay').classList.add('open');
+}
+function closeLegal() {
+  document.getElementById('legalOverlay').classList.remove('open');
+}
+function handleLegalOverlay(e) {
+  if (e.target === document.getElementById('legalOverlay')) closeLegal();
+}
+
+/* ─── KODE PEMBAYARAN ─── */
+const PRODUK_PREFIXES = { apk:'APK', bundling:'BDL', panel:'PNL', spesial:'SPC' };
+
+function getOrCreateKode(produkId) {
+  const key = 'kode_bayar_' + produkId;
+  let kode = localStorage.getItem(key);
+  if (!kode) {
+    const pre  = PRODUK_PREFIXES[produkId] || 'PRD';
+    const rand = Math.random().toString(36).substring(2,7).toUpperCase();
+    const ts   = Date.now().toString(36).slice(-4).toUpperCase();
+    kode = pre + '-' + rand + ts;
+    localStorage.setItem(key, kode);
+  }
+  return kode;
+}
+
+function initKodeBayar() {
+  Object.keys(PRODUK_PREFIXES).forEach(id => {
+    const kode = getOrCreateKode(id);
+    const el = document.getElementById('kode-' + id);
+    if (el) el.textContent = kode;
+  });
+}
+// init on load
+document.addEventListener('DOMContentLoaded', initKodeBayar);
+setTimeout(initKodeBayar, 100);
+
+function copyKode(produkId) {
+  const kode = getOrCreateKode(produkId);
+  navigator.clipboard.writeText(kode).catch(() => {});
+  const btns = document.querySelectorAll('[onclick="copyKode(\'' + produkId + '\')"]');
+  btns.forEach(btn => {
+    btn.textContent = 'Tersalin!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Salin'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ─── KERANJANG ─── */
+let cart = [];
+
+function addToCart(id, nama, hargaStr, hargaNum) {
+  if (cart.find(x => x.id === id)) {
+    showToastMsg('⚠ ' + nama + ' sudah ada di keranjang');
+    return;
+  }
+  cart.push({ id, nama, hargaStr, hargaNum, kode: getOrCreateKode(id) });
+  updateCartUI();
+  showToastMsg('✓ ' + nama + ' ditambahkan ke keranjang');
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  updateCartUI();
+  renderCartBody();
+}
+
+function updateCartUI() {
+  const count = cart.length;
+  const fab = document.getElementById('cartFab');
+  const cnt = document.getElementById('cartFabCount');
+  if (fab) fab.classList.toggle('visible', count > 0);
+  if (cnt) cnt.textContent = count;
+}
+
+function openCart() {
+  renderCartBody();
+  document.getElementById('cartOverlay').classList.add('open');
+}
+function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); }
+function handleCartOverlay(e) { if (e.target === document.getElementById('cartOverlay')) closeCart(); }
+
+function renderCartBody() {
+  const body = document.getElementById('cartBody');
+  const orderBtn = document.getElementById('cartOrderBtn');
+  const totalEl  = document.getElementById('cartTotal');
+  const icons = { apk:'🤖', bundling:'📦', panel:'🖥', spesial:'👑' };
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Keranjang kosong</div></div>';
+    if (orderBtn) orderBtn.disabled = true;
+    if (totalEl) totalEl.textContent = 'Rp0';
+    return;
+  }
+  let total = 0;
+  body.innerHTML = cart.map(item => {
+    total += item.hargaNum;
+    return `<div class="cart-item">
+      <div class="cart-item-icon">${icons[item.id] || '📦'}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.nama}</div>
+        <div class="cart-item-price">${item.hargaStr}</div>
+        <div class="cart-item-kode">Kode: ${item.kode}</div>
+      </div>
+      <button class="cart-item-del" onclick="removeFromCart('${item.id}')" title="Hapus">✕</button>
+    </div>`;
+  }).join('');
+  if (orderBtn) orderBtn.disabled = false;
+  if (totalEl)  totalEl.textContent = 'Rp' + total.toLocaleString('id-ID');
+}
+
+function orderKeranjang() {
+  if (cart.length === 0) return;
+  const items   = cart.map(x => x.nama + ' — ' + x.hargaStr);
+  const namaGab = cart.length > 1 ? 'Keranjang (' + cart.length + ' produk)' : cart[0].nama;
+  const total   = 'Rp' + cart.reduce((s,x) => s + x.hargaNum, 0).toLocaleString('id-ID');
+  closeCart();
+  goToQRIS(namaGab, total, items);
+}
+
+function showToastMsg(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+/* ─── LAPORAN TABS ─── */
+function switchLaporanTab(tab) {
+  ['umum','bayar'].forEach(t => {
+    document.getElementById('ltab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('lpanel-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+/* ─── SUDAH BAYAR — buka laporan pembayaran ─── */
+function openLaporanBayar(produkId, produkNama) {
+  const kode = getOrCreateKode(produkId);
+  _openBayarModal(produkNama, kode);
+}
+
+function openLaporanBayarFromQRIS() {
+  // ambil kode & nama produk dari sesi QRIS aktif
+  const kode  = window._currentQrisKode   || '—';
+  const nama  = window._currentQrisProduk || '—';
+  _openBayarModal(nama, kode);
+}
+
+function _openBayarModal(produkNama, kode) {
+  // Kembali ke toko dulu jika sedang di QRIS
+  if (!document.getElementById('halamanToko').classList.contains('hidden') === false) {
+    kembali();
+  }
+  document.getElementById('modalLaporan').classList.add('open');
+  switchLaporanTab('bayar');
+  document.getElementById('b-produk').value = produkNama;
+  document.getElementById('b-kode').value   = kode;
+  const dispVal = document.getElementById('kode-display-val');
+  if (dispVal) dispVal.textContent = kode;
+}
+
+/* ─── KIRIM LAPORAN PEMBAYARAN ─── */
+async function kirimLaporanBayar() {
+  const nama    = document.getElementById('b-nama').value.trim();
+  const kontak  = document.getElementById('b-kontak').value.trim();
+  const produk  = document.getElementById('b-produk').value.trim();
+  const kode    = document.getElementById('b-kode').value.trim();
+  const nominal = document.getElementById('b-nominal').value.trim();
+  const detail  = document.getElementById('b-detail').value.trim();
+
+  let ok = true;
+  ['berr-nama','berr-kontak','berr-kode'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  if (!nama)   { document.getElementById('berr-nama').style.display = 'block';   ok = false; }
+  if (!kontak) { document.getElementById('berr-kontak').style.display = 'block'; ok = false; }
+  if (!kode)   { document.getElementById('berr-kode').style.display = 'block';   ok = false; }
+  if (!ok) return;
+
+  const btn = document.getElementById('btnKirimBayar');
+  btn.disabled = true; btn.textContent = 'Mengirim…';
+
+  try {
+    if (typeof window.kirimBayarFirebase === 'function') {
+      await window.kirimBayarFirebase({ nama, kontak, produk, kode, nominal, detail });
+    }
+    // Reset
+    ['b-nama','b-kontak','b-nominal','b-detail'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('modalLaporan').classList.remove('open');
+    showToastMsg('✅ Konfirmasi bayar terkirim!');
+  } catch(e) {
+    console.error(e);
+    alert('Gagal mengirim. Coba lagi.');
+  } finally {
+    btn.disabled = false; btn.textContent = '💳 Kirim Konfirmasi Bayar';
+  }
+}
+
+/* ─── PANEL MOCK ANIMATION ─── */
+(function animatePanelPreview() {
+  const vals = ['2.14×','8.42×','3.76×','12.01×','1.98×','5.50×','7.23×','4.11×'];
+  let i = 0;
+  setInterval(() => {
+    const el = document.getElementById('ppmVal');
+    if (el) { el.style.opacity = '0.3'; setTimeout(() => { el.textContent = vals[i % vals.length]; el.style.opacity = '1'; i++; }, 200); }
+  }, 1800);
+})();
+
+/* ─── PROMO FUNCTIONS ─── */
+function copyPromo() {
+  const code = document.getElementById('promoCode').textContent;
+  navigator.clipboard.writeText(code).catch(() => {});
+  const btn = document.getElementById('btnCopyPromo');
+  btn.textContent = 'Tersalin!';
+  btn.style.background = '#4ade80';
+  btn.style.color = '#0a0a0a';
+  setTimeout(() => { btn.textContent = 'Salin'; btn.style.background = ''; btn.style.color = ''; }, 2000);
+}
+function copyReferral() {
+  const link = window.location.href.split('?')[0] + '?ref=spaceman';
+  navigator.clipboard.writeText(link).catch(() => {});
+  showPromoToast('🔗 Link referral disalin!');
+}
+function daftarAntrian() {
+  showPromoToast('🔔 Kamu akan dinotifikasi saat stok tersedia!');
+}
+function showPromoToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window._promoToastT);
+  window._promoToastT = setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+/* ─── PROMO COUNTDOWN ─── */
+(function startCountdown() {
+  // Set target = midnight tonight
+  const now = new Date();
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) { startCountdown(); return; }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const pad = n => String(n).padStart(2,'0');
+    const hEl = document.getElementById('cdH');
+    const mEl = document.getElementById('cdM');
+    const sEl = document.getElementById('cdS');
+    if (hEl) hEl.textContent = pad(h);
+    if (mEl) mEl.textContent = pad(m);
+    if (sEl) sEl.textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ─── TAB SWITCHING ─── */
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+/* ─── FAQ TOGGLE ─── */
+function toggleFaq(btn) {
+  const a = btn.nextElementSibling;
+  const isOpen = a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(x => x.classList.remove('open'));
+  if (!isOpen) { a.classList.add('open'); btn.classList.add('open'); }
+}
+
+/* ─── MODAL LAPORAN ─── */
+function openModal() {
+  document.getElementById('modalLaporan').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalLaporan').classList.remove('open');
+  document.querySelectorAll('.field-err').forEach(x => x.style.display = 'none');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalLaporan')) closeModal();
+}
+// Wrapper: panggil Firebase function
+function kirimLaporan() {
+  if (typeof window.kirimLaporanFirebase === 'function') {
+    window.kirimLaporanFirebase();
+  } else {
+    alert('Sistem sedang dimuat, coba lagi sesaat.');
+  }
+}
+
+/* ─── QRIS LOGIC ─── */
+let countdown, timeLeft = 120;
+
+function goToQRIS(nama, harga, items, produkId) {
+  document.getElementById('halamanToko').classList.add('hidden');
+  document.getElementById('halamanQRIS').classList.remove('hidden');
+  document.getElementById('sumProd').textContent  = nama  || '—';
+  document.getElementById('sumPrice').textContent = harga || '—';
+  // Render item breakdown
+  const wrap = document.getElementById('sumItemsWrap');
+  if (wrap) {
+    if (items && items.length > 1) {
+      wrap.innerHTML = items.map(it =>
+        '<div class="o-row o-item"><span class="o-label" style="color:var(--text3);padding-left:10px">└ ' + it + '</span></div>'
+      ).join('');
+    } else {
+      wrap.innerHTML = '';
+    }
+  }
+  // Kode pembayaran — unik per produk per user
+  const kode = produkId ? getOrCreateKode(produkId) : generateTempKode(nama);
+  window._currentQrisKode    = kode;
+  window._currentQrisProduk  = nama;
+  window._currentQrisProdukId = produkId || null;
+  const kodeEl = document.getElementById('qrisKodeVal');
+  if (kodeEl) kodeEl.textContent = kode;
+  // Also pre-fill sudah bayar form if open
+  const bkode = document.getElementById('b-kode');
+  const bprod = document.getElementById('b-produk');
+  if (bkode) bkode.value = kode;
+  if (bprod) bprod.value = nama;
+
+  document.getElementById('payLoading').classList.remove('hidden');
+  document.getElementById('qrisSection').classList.add('hidden');
+  document.getElementById('notifErr').style.display = 'none';
+  document.getElementById('notifOk').style.display  = 'none';
+  document.getElementById('btnShowQris').disabled = false;
+  window.scrollTo(0, 0);
+  setTimeout(showQris, 2000);
+}
+
+function generateTempKode(nama) {
+  // untuk keranjang / gabungan — generate kode sementara
+  const pre  = 'KRT';
+  const rand = Math.random().toString(36).substring(2,7).toUpperCase();
+  return pre + '-' + rand;
+}
+
+function copyQrisKode() {
+  const kode = window._currentQrisKode || '';
+  if (!kode) return;
+  navigator.clipboard.writeText(kode).catch(() => {});
+  const btn = document.getElementById('qrisKodeCopyBtn');
+  if (btn) {
+    btn.textContent = 'Tersalin!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Salin'; btn.classList.remove('copied'); }, 2000);
+  }
+}
+
+function showQris() {
+  document.getElementById('payLoading').classList.add('hidden');
+  document.getElementById('qrisSection').classList.remove('hidden');
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(countdown);
+  timeLeft = 120;
+  tickTimer();
+  document.getElementById('btnShowQris').disabled = true;
+  countdown = setInterval(() => {
+    timeLeft--;
+    tickTimer();
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      document.getElementById('qrisSection').classList.add('hidden');
+      document.getElementById('btnShowQris').disabled = false;
+    }
+  }, 1000);
+}
+
+function tickTimer() {
+  const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+  document.getElementById('tCount').textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+  const pct = (timeLeft / 120) * 100;
+  const bar = document.getElementById('tBar');
+  bar.style.width = pct + '%';
+  const urgent = timeLeft <= 30;
+  bar.classList.toggle('urgent', urgent);
+  document.getElementById('tLabel').classList.toggle('urgent', urgent);
+}
+
+function reloadQris() {
+  document.getElementById('qrisSection').classList.add('hidden');
+  document.getElementById('payLoading').classList.remove('hidden');
+  setTimeout(showQris, 1500);
+}
+
+function kembali() {
+  clearInterval(countdown);
+  document.getElementById('halamanQRIS').classList.add('hidden');
+  document.getElementById('halamanToko').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function cekBayar() {
+  document.getElementById('notifErr').style.display = 'block';
+  document.getElementById('notifOk').style.display  = 'none';
+}
+</script>
+
+<!-- ════════════════════════════════════
+     MODAL KEBIJAKAN PRIVASI & SYARAT
+════════════════════════════════════ -->
+<div class="legal-overlay" id="legalOverlay" onclick="handleLegalOverlay(event)">
+  <div class="legal-sheet">
+    <div class="legal-sheet-handle"></div>
+    <div class="legal-sheet-header">
+      <div class="legal-sheet-title" id="legalTitle">—</div>
+      <button class="legal-sheet-close" onclick="closeLegal()">&#x2715;</button>
+    </div>
+    <div class="legal-sheet-body" id="legalBody"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     MODAL KERANJANG
+════════════════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="handleCartOverlay(event)">
+  <div class="cart-sheet">
+    <div class="cart-handle"></div>
+    <div class="cart-header">
+      <div class="cart-title">🛒 Keranjang</div>
+      <button class="cart-close" onclick="closeCart()">✕</button>
+    </div>
+    <div class="cart-body" id="cartBody"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span class="cart-total-lbl">Total</span>
+        <span class="cart-total-val" id="cartTotal">Rp0</span>
+      </div>
+      <button class="cart-order-btn" id="cartOrderBtn" onclick="orderKeranjang()">⚡ Order Semua</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cart FAB -->
+<button class="cart-fab" id="cartFab" onclick="openCart()">
+  🛒 Keranjang <span class="cart-count" id="cartFabCount">0</span>
+</button>
+
+</body>
+</html>
